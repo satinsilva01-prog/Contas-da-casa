@@ -1,0 +1,1261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Contas da Casa</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f5f7;color:#20252b}
+header{background:#1f6f43;color:#fff;padding:15px}header h1{margin:0;font-size:22px}header small{opacity:.9}
+nav{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;position:sticky;top:0;z-index:5;border-bottom:1px solid #ddd}
+nav button{border:0;background:#fff;padding:10px 2px;font-size:11px}nav button.active{color:#1f6f43;font-weight:bold;border-bottom:3px solid #1f6f43}
+main{max-width:800px;margin:auto;padding:12px}.tab{display:none}.tab.active{display:block}
+.card{background:#fff;border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #0001}
+h2,h3{margin:0 0 12px}.muted{font-size:13px;color:#66727d}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:13px;font-weight:bold;margin:9px 0 5px}input,select{width:100%;padding:11px;border:1px solid #ccd3d9;border-radius:9px;background:#fff;font-size:15px}
+.btn{border:0;border-radius:9px;padding:11px 14px;background:#1f6f43;color:#fff;font-weight:bold}.secondary{background:#e8edf0;color:#26313a}.danger{background:#b3261e}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eee}.row:last-child{border-bottom:0}.total{font-size:17px}
+.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choice.selected{background:#1f6f43;color:#fff;outline:3px solid #b9ddc7}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 4px;border-bottom:1px solid #eee;text-align:left}.empty{text-align:center;padding:18px;color:#69747d}
+.subnav{display:flex;gap:6px;overflow:auto;margin-bottom:12px}.subnav button{border:0;border-radius:9px;padding:9px 12px;background:#e8edf0;white-space:nowrap}.subnav .active{background:#1f6f43;color:#fff}
+.gauge{text-align:center;padding:18px;border-radius:14px;background:#eef3ef;margin:10px 0;font-size:20px;font-weight:bold}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center;padding:20px}.modal .card{width:100%;max-width:360px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}.choice-grid{grid-template-columns:1fr 1fr}}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{padding:13px;border-radius:12px;background:#f7f9fa}.kpi b{font-size:20px}.trend{font-size:12px;margin-top:4px}.chart{margin-top:12px}.bar-row{display:grid;grid-template-columns:105px 1fr 70px;gap:7px;align-items:center;margin:9px 0;font-size:12px}.bar{height:14px;background:#e5e9ec;border-radius:10px;overflow:hidden}.bar>i{display:block;height:100%;background:#1f6f43;border-radius:10px}.comparison{font-size:12px;color:#5f6b75}.people-table{width:100%;border-collapse:collapse}.people-table td{padding:8px 4px;border-bottom:1px solid #eee}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#eef3ef;font-size:12px}@media(max-width:560px){.kpi-grid{grid-template-columns:1fr}.bar-row{grid-template-columns:85px 1fr 65px}}
+
+.home-hero{background:linear-gradient(135deg,#16344d,#1f6f43);color:#fff;border-radius:0 0 24px 24px;padding:24px 18px;margin:-12px -12px 16px;box-shadow:0 5px 18px #0002}
+.home-hero h1{font-size:28px;margin:0 0 6px}.home-hero p{margin:0;opacity:.9}
+.home-period{background:#fff;color:#26313a;border-radius:16px;padding:14px;margin-top:18px;box-shadow:0 3px 12px #0002}.home-period strong{font-size:21px;color:#1f6f43}
+.home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.home-card{border:0;border-radius:16px;padding:18px 10px;min-height:112px;color:#fff;font-weight:bold;font-size:16px;box-shadow:0 3px 10px #0002;cursor:pointer}.home-card small{display:block;font-weight:normal;font-size:11px;margin-top:7px;opacity:.95}
+.home-card.fix{background:#2878b9}.home-card.buy{background:#2d9a52}.home-card.sum{background:#d99a12}.home-card.mgmt{background:#234f78}.home-card.hist{background:#b9573f}.home-card.config{background:#66727d}.home-tip{background:#fff;border-radius:16px;padding:15px;margin-top:12px;text-align:center;box-shadow:0 2px 8px #0001}
+@media(max-width:430px){.home-grid{grid-template-columns:1fr 1fr}.home-card{min-height:105px}}
+
+body.home-view nav{display:none}
+
+.fixed-lock-banner{margin:8px 0;padding:11px 13px;border-radius:12px;background:#eef3ef;font-weight:bold}
+.fixed-lock-banner.warn{background:#fff4d6;color:#7a5600}
+.import-box{margin-top:10px;padding:12px;border-radius:12px;background:#f7f9fa;border:1px solid #e0e5e8}
+.import-check{display:flex;align-items:center;gap:8px;padding:7px 0;font-weight:normal}.import-check input{width:auto}
+.mgmt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chart-card{background:#fff;border-radius:14px;padding:14px;margin-top:12px;box-shadow:0 2px 8px #0001}
+.donut-wrap{display:flex;align-items:center;gap:16px;justify-content:center}.donut{width:150px;height:150px;border-radius:50%;position:relative}.donut:after{content:"";position:absolute;inset:34px;background:#fff;border-radius:50%}
+.legend{font-size:12px}.legend div{margin:7px 0}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px}
+.clock-wrap{display:flex;justify-content:center;align-items:center;padding:8px 0}.clock{width:230px;height:230px;border-radius:50%;position:relative;background:conic-gradient(from 225deg,#2d9a52 0 90deg,#e4b62b 90deg 135deg,#b3261e 135deg 225deg);box-shadow:inset 0 0 0 12px #fff,0 3px 12px #0002}.clock-face{position:absolute;inset:15px;border-radius:50%;background:#fff}.clock-label{position:absolute;font-size:10px;font-weight:bold}.clock-label.g{left:30px;bottom:55px}.clock-label.y{left:105px;top:28px}.clock-label.r{right:25px;bottom:55px}.clock-center{position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:#20252b;transform:translate(-50%,-50%);z-index:4}.clock-hand{position:absolute;left:50%;top:50%;width:4px;height:83px;background:#20252b;transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(-45deg);border-radius:4px;z-index:3}
+@media(max-width:560px){.mgmt-grid{grid-template-columns:1fr}.donut-wrap{flex-direction:column}}
+
+.speedometer-wrap{display:flex;justify-content:center;align-items:center;width:100%;padding:16px 8px 4px;box-sizing:border-box}
+.speedometer{position:relative;width:min(92vw,430px);aspect-ratio:2/1;overflow:hidden}
+.speedometer-arc{position:absolute;left:5%;right:5%;top:4%;height:92%;border-radius:100% 100% 0 0;border:18px solid transparent;border-bottom:0;box-sizing:border-box;transform:rotate(0deg)}
+.speedometer-arc.green{border-top-color:#2d9a52;clip-path:polygon(0 0,55% 0,50% 100%,0 100%)}
+.speedometer-arc.yellow{border-top-color:#d99a12;clip-path:polygon(45% 0,75% 0,75% 100%,50% 100%)}
+.speedometer-arc.red{border-top-color:#c33b3b;clip-path:polygon(70% 0,100% 0,100% 100%,75% 100%)}
+.speedometer-scale{position:absolute;left:8%;right:8%;top:10%;height:78%;border-radius:100% 100% 0 0;border-top:2px solid rgba(127,127,127,.45)}
+.speedometer-hand{position:absolute;left:50%;bottom:8%;width:6px;height:43%;background:currentColor;transform-origin:50% 100%;border-radius:6px;z-index:4}
+.speedometer-center{position:absolute;left:50%;bottom:5%;width:24px;height:24px;border-radius:50%;transform:translateX(-50%);background:currentColor;z-index:5}
+.speedometer-label{position:absolute;bottom:1%;font-size:11px;font-weight:800;white-space:nowrap}
+.speedometer-label.left{left:2%}.speedometer-label.center{left:50%;transform:translateX(-50%)}.speedometer-label.right{right:2%}
+@media(max-width:600px){.speedometer{width:min(94vw,380px)}.speedometer-arc{border-width:14px}.speedometer-label{font-size:9px}}
+
+.purchase-history-cards{display:grid;gap:8px;margin-top:12px}
+.purchase-history-card{border:1px solid rgba(127,127,127,.22);border-radius:14px;background:var(--card,#fff);overflow:hidden}
+.purchase-history-card summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px}
+.purchase-history-card summary::-webkit-details-marker{display:none}
+.purchase-history-card summary>span{display:flex;flex-direction:column;min-width:0}
+.purchase-history-card summary small{opacity:.68;margin-top:3px}
+.purchase-history-card summary strong{white-space:nowrap}
+.purchase-history-details{display:flex;flex-direction:column;gap:0;padding:0 13px 13px;border-top:1px solid rgba(127,127,127,.12)}
+.purchase-history-details>div{padding-top:9px;display:flex;flex-direction:column;gap:2px}
+.purchase-history-details span{font-size:11px;opacity:.65}
+@media(max-width:480px){.purchase-history-details{display:flex;flex-direction:column}.purchase-history-card summary{padding:10px 11px}}
+
+.fixed-subnav{margin-top:2px}.fixed-subnav button{font-weight:700}
+.fixed-mgmt-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.fixed-mgmt-kpi{background:#eef3f4;border-radius:16px;padding:15px}.fixed-mgmt-kpi b{display:block;font-size:24px;margin-top:5px}
+.fixed-mgmt-card{border:1px solid #d9dfe2;border-radius:16px;margin:10px 0;overflow:hidden;background:#fff}.fixed-mgmt-card summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}.fixed-mgmt-card summary::-webkit-details-marker{display:none}.fixed-mgmt-card .account-title{font-size:22px;font-weight:800}.fixed-mgmt-card .account-preview{background:#edf7f1;border-radius:11px;padding:9px 12px;margin-top:6px;font-size:15px}.fixed-mgmt-card .status{font-size:18px;white-space:nowrap}.fixed-mgmt-details{border-top:1px solid #e2e6e8;padding:12px 16px}.fixed-mgmt-details .line{font-size:16px;margin:8px 0;line-height:1.25}.fixed-mgmt-details .actions{display:flex;flex-direction:column}.fixed-mgmt-details .actions button{width:100%}
+@media(max-width:560px){.fixed-mgmt-kpis{grid-template-columns:1fr 1fr}.fixed-mgmt-card summary{align-items:flex-start}.fixed-mgmt-card .account-title{font-size:21px}.fixed-mgmt-card .status{font-size:17px}}
+
+.purchase-history-month-card{border:1px solid rgba(127,127,127,.22);border-radius:15px;margin:10px 0;overflow:hidden;background:var(--card,#fff)}
+.purchase-history-month-card summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(127,127,127,.08);font-size:17px}
+.purchase-history-month-card summary::-webkit-details-marker{display:none}
+.purchase-month-items{padding:4px 8px 8px;display:block!important;width:100%!important}
+.report-bottom{margin:32px 0 90px;padding-bottom:10px}.report-bottom .btn{width:100%;min-height:48px}
+#pdfReportOverlay{display:none}
+body.printing-tab-report>#pdfReportOverlay{display:block;position:fixed;inset:0;z-index:999999;background:#fff;overflow:auto}
+body.printing-tab-report> :not(#pdfReportOverlay){display:none!important}
+.pdf-report-page{font-family:Arial,sans-serif;padding:18px;max-width:900px;margin:0 auto;color:#18252d;background:#fff}
+.pdf-report-page .report-head h1{font-size:24px;margin:0 0 4px}.pdf-report-page .report-head p{font-size:12px;color:#66727d;margin:0 0 18px}
+.pdf-report-page h2{font-size:18px;margin:16px 0 10px}.report-month{font-size:18px;margin:18px 0 8px;border-bottom:2px solid #ddd;padding-bottom:6px}
+.report-purchase-card{border:1px solid #cfd6da;border-radius:14px;margin:10px 0;overflow:hidden;background:#fff;break-inside:avoid}
+.report-card-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;background:#f4f7f8}
+.report-card-header strong{display:block;font-size:16px}.report-card-header small{display:block;color:#68737b;margin-top:4px}.report-value{white-space:nowrap;font-size:16px}
+.report-card-info{padding:8px 13px}.report-card-info>div{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}.report-card-info>div:last-child{border-bottom:0}.report-card-info span{color:#66727d}.report-card-info b{text-align:right}
+.report-month-total{text-align:right;padding:10px 0 18px;border-top:2px solid #ddd;font-size:14px}
+.pdf-report-close{margin:20px 0 80px;padding:12px 18px;width:100%;border:0;border-radius:10px;font-size:16px}
+@media print{
+ body.printing-tab-report>#pdfReportOverlay{position:static;overflow:visible}
+ .pdf-report-page{padding:0;max-width:none}
+ .pdf-report-close{display:none}
+ .report-purchase-card{break-inside:avoid}
+}
+
+/* PURCHASE HISTORY — FORCE ONE COLUMN ON MOBILE AND DESKTOP */
+.purchase-history-cards{display:block!important;width:100%!important}
+.purchase-history-card{display:block!important;width:100%!important}
+.purchase-history-card .purchase-history-details{
+ display:block!important;
+ width:100%!important;
+ grid-template-columns:none!important;
+ columns:1!important;
+}
+.purchase-history-card .purchase-history-details>div{
+ display:block!important;
+ width:100%!important;
+ min-width:100%!important;
+ max-width:100%!important;
+ padding:9px 0!important;
+ margin:0!important;
+}
+.purchase-history-card .purchase-history-details>div span,
+.purchase-history-card .purchase-history-details>div b{
+ display:block!important;
+ width:100%!important;
+ text-align:left!important;
+}
+.purchase-history-card .purchase-history-details>div b{margin-top:3px!important}
+
+#buyList{display:block!important;width:100%!important}
+#buyList table{display:none!important}
+.purchase-history-actions{display:block!important;width:100%!important;margin-top:12px;padding-top:10px;border-top:1px solid rgba(127,127,127,.12)}
+.purchase-history-actions button{display:block!important;width:100%!important;box-sizing:border-box!important}
+
+header small#headerPeriod{display:block;margin-top:3px;font-size:14px;opacity:.95}
+
+.people-cards{display:grid;gap:10px;margin-top:12px}
+.person-card{border:1px solid #d8dee3;border-radius:14px;background:#fff;overflow:hidden}
+.person-card summary{list-style:none;cursor:pointer;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.person-card summary::-webkit-details-marker{display:none}
+.person-card summary>span{display:flex;flex-direction:column;gap:3px}
+.person-card summary strong{font-size:18px;white-space:nowrap}
+.person-card-body{padding:0 14px 14px;border-top:1px solid #edf0f2}
+.person-detail{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f2}
+.person-total{border-bottom:0;padding-bottom:2px;font-size:16px}
+
+.people-period-filter{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;border:1px solid #dfe5e8;border-radius:14px;background:#f7faf9;margin:12px 0}
+.people-period-filter input{margin-top:4px}
+@media(max-width:560px){.people-period-filter{grid-template-columns:1fr}}
+
+.accounts-period-filter{display:grid;grid-template-columns:minmax(130px,220px) 1fr;align-items:end;gap:12px;padding:12px;border:1px solid #dfe5e8;border-radius:14px;background:#f7faf9;margin:12px 0}
+.accounts-period-help{padding-bottom:8px}
+.account-compare-card{border:1px solid #d8dee3;border-radius:14px;background:#fff;overflow:hidden;margin:10px 0}
+.account-compare-card summary{list-style:none;cursor:pointer;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.account-compare-card summary::-webkit-details-marker{display:none}
+.account-compare-card summary>span{display:flex;flex-direction:column;gap:3px}
+.account-compare-card summary strong{white-space:nowrap;font-size:17px}
+.account-chart{padding:4px 10px 14px;border-top:1px solid #edf0f2}
+.account-chart-area{height:260px;position:relative;padding:22px 4px 0}
+.account-bars{height:210px;display:flex;align-items:flex-end;gap:5px;position:relative;z-index:2;border-bottom:1px solid #cfd6da}
+.account-bar-col{height:100%;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+.account-bar{width:100%;max-width:34px;background:#2878b9;border-radius:5px 5px 0 0;min-height:0}
+.account-bar-value{font-size:8px;line-height:1;white-space:nowrap;transform:rotate(-55deg);transform-origin:center bottom;margin-bottom:2px;visibility:hidden}
+.account-bar-col:hover .account-bar-value{visibility:visible}
+.account-bar-col small{font-size:9px;text-transform:capitalize}
+.account-average-line{position:absolute;left:0;right:0;border-top:2px dashed #d33;z-index:3;pointer-events:none}
+.account-average-line span{position:absolute;right:0;top:-18px;font-size:10px;font-weight:700;color:#b22;background:#fff;padding:1px 4px;border-radius:4px}
+@media(max-width:560px){.accounts-period-filter{grid-template-columns:1fr}.account-chart-area{height:240px}.account-bars{height:190px}.account-bar-col small{font-size:8px}.account-bar-value{font-size:7px}}
+
+.overview-period-filter{display:grid;grid-template-columns:minmax(180px,240px) minmax(130px,200px);gap:12px;align-items:end;padding:12px;border:1px solid #dfe5e8;border-radius:14px;background:#f7faf9;margin:12px 0}
+.overview-average{display:flex;justify-content:space-between;padding:10px 2px 0;border-top:1px solid #dfe5e8;margin-top:10px}
+@media(max-width:560px){.overview-period-filter{grid-template-columns:1fr}}
+
+.economy-card{background:#fff;border:1px solid #dfe5e8;border-radius:18px;padding:16px;box-shadow:0 3px 12px #0001}
+.economy-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.economy-head h3{margin:0 0 4px}
+.economy-status{padding:8px 11px;border-radius:999px;font-weight:800;font-size:11px;white-space:nowrap}
+.economy-good{background:#e7f5eb;color:#1f6f43}.economy-stable{background:#fff5d9;color:#8b6900}.economy-bad{background:#fde8e8;color:#a92d2d}
+.gauge-reference{position:relative;height:315px;max-width:500px;margin:4px auto 0}
+.gauge-arc{position:absolute;left:8%;right:8%;top:18px;height:230px;border-radius:260px 260px 0 0;overflow:hidden;background:conic-gradient(from 270deg at 50% 100%,#0b8f3c 0deg,#64b51f 48deg,#f2df17 78deg,#f6a91a 112deg,#ef7d20 138deg,#ef1e1e 180deg,#ef1e1e 180deg)}
+.gauge-arc:after{content:"";position:absolute;left:15%;right:15%;bottom:0;height:140px;background:#fff;border-radius:180px 180px 0 0}
+.gauge-needle{position:absolute;left:50%;bottom:18px;width:6px;height:170px;background:#20262b;border-radius:8px;transform-origin:50% 100%;z-index:5;box-shadow:1px 2px 4px #0004}
+.gauge-hub{position:absolute;left:50%;bottom:8px;width:30px;height:30px;background:#252a2e;border-radius:50%;transform:translateX(-50%);z-index:6;box-shadow:0 1px 3px #0004}
+.gauge-mark{position:absolute;bottom:15px;left:50%;width:3px;height:14px;background:#6a747a;transform-origin:50% 115px;z-index:4}
+.gauge-mark.m1{transform:rotate(-70deg)}.gauge-mark.m2{transform:rotate(0deg)}.gauge-mark.m3{transform:rotate(70deg)}
+.gauge-labels-below{position:absolute;left:4%;right:4%;bottom:-22px;display:flex;justify-content:space-between;align-items:center;color:#000;font-size:10px;font-weight:800;letter-spacing:.2px}
+.gauge-labels-below span{color:#000}
+.gauge-number{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:8;text-align:center;font-size:24px;font-weight:900;color:#26333b}
+.gauge-number small{display:block;font-size:10px;font-weight:500;color:#68747c}
+.economy-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}
+.economy-kpis>div{background:#f7faf9;border-radius:12px;padding:10px;text-align:center}
+.economy-kpis small{display:block;color:#68747c;font-size:10px}.economy-kpis b{font-size:15px}
+.economy-foot{text-align:center;margin:10px 0 0}
+@media(max-width:560px){
+  .economy-head{flex-direction:column}
+  .gauge-reference{height:275px}
+  .gauge-arc{height:200px}
+  .gauge-needle{height:145px}
+  .gauge-label{font-size:8px}
+  .economy-kpis b{font-size:13px}
+}
+
+.history-expander-list{display:grid;gap:12px;margin-top:14px}
+.history-main-card{border:1px solid #d8dee3;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 2px 8px #0000000d}
+.history-main-card>summary{list-style:none;cursor:pointer;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.history-main-card>summary::-webkit-details-marker{display:none}
+.history-main-card>summary>span:first-child{display:flex;align-items:flex-start;gap:9px;font-size:16px}
+.history-main-card>summary small{display:block;font-size:11px;font-weight:400;color:#68747c;margin-top:3px}
+.history-chevron{font-size:22px;transition:transform .2s}
+.history-main-card[open] .history-chevron{transform:rotate(180deg)}
+.history-card-content{padding:0 14px 16px;border-top:1px solid #edf0f2}
+
+.fixed-history-records{display:grid;gap:10px;margin-top:12px}
+.fixed-history-record-card{border:1px solid #d8dee3;border-radius:14px;background:#fff;overflow:hidden}
+.fixed-history-record-card>summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.fixed-history-record-card>summary::-webkit-details-marker{display:none}
+.fixed-history-title{display:flex;flex-direction:column;gap:3px}
+.fixed-history-title small{font-size:11px;color:#68747c;font-weight:400}
+.fixed-history-record-body{border-top:1px solid #edf0f2;padding:10px 14px}
+.fixed-history-detail{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #f0f2f3}
+.fixed-history-detail:last-child{border-bottom:0}
+.fixed-management-card{margin-top:12px}.fixed-management-card>.purchase-toggle{background:#fff;border:0;border-radius:10px;padding:12px;color:#26313a;font-size:15px}.fixed-management-card>.purchase-toggle span{color:#26313a}.hidden{display:none !important}
+</style>
+
+<style id="minhas-financas-layout">
+/* Layout visual MINHAS FINANÇAS — aplicado sem alterar a lógica dos módulos */
+:root{--mf-blue:#2563eb;--mf-bg:#f3f4f6;--mf-text:#111827;--mf-muted:#6b7280;--mf-border:#e5e7eb;--mf-card:#fff}
+body{background:var(--mf-bg);color:var(--mf-text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:#fff!important;color:var(--mf-text)!important;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:11px 52px 11px 14px;position:sticky;top:0;z-index:20}
+header h1{margin:0;text-align:center;font-size:19px;color:var(--mf-text)!important}
+header small#headerPeriod{color:var(--mf-muted);font-size:12px;text-align:center}
+nav{display:block;background:#fff!important;border-bottom:1px solid var(--mf-border);position:sticky;top:52px;z-index:19;padding:7px 10px}
+nav button{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:#fff!important;color:var(--mf-text)!important;border:1px solid #d1d5db;border-radius:10px;padding:7px 12px;min-height:42px;font-size:14px;line-height:1.15;font-weight:700}
+nav button.active{color:var(--mf-blue)!important;border-color:#bfdbfe!important;background:#eff6ff!important;border-bottom:1px solid #bfdbfe!important}
+nav button br{display:none}
+main{max-width:1050px;margin:auto;padding:12px 12px 70px}
+.card,.box{background:var(--mf-card);border:1px solid var(--mf-border);border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:none}
+h2{font-size:20px}h3{font-size:16px}
+.muted,.note,.sub,.mini{color:var(--mf-muted)}
+input,select{border:1px solid #d1d5db;border-radius:9px;background:#fff;padding:10px;font:inherit}
+.btn,button.btn,button{border:0;border-radius:9px;padding:10px 13px;font-weight:700;background:var(--mf-blue);color:#fff}
+.secondary,.btn.secondary{background:#e5e7eb!important;color:#111827!important}
+.home-hero{background:#fff;color:var(--mf-text);border:1px solid var(--mf-border);border-radius:14px;padding:18px;margin:-12px -12px 16px;box-shadow:none}
+.home-hero h1{font-size:23px;color:var(--mf-text);text-align:left}
+.home-hero p{color:var(--mf-muted);opacity:1}
+.home-period{background:#f8fafc;color:var(--mf-text);border:1px solid var(--mf-border);box-shadow:none;margin-top:14px}
+.home-period strong{color:var(--mf-blue)}
+.home-card{border:1px solid var(--mf-border);border-radius:14px;box-shadow:none;min-height:105px}
+.home-card.fix,.home-card.buy,.home-card.sum,.home-card.mgmt,.home-card.hist,.home-card.config{background:#fff;color:var(--mf-text)}
+.home-card small{color:var(--mf-muted);opacity:1}
+.home-tip{border:1px solid var(--mf-border);box-shadow:none}
+.subnav button{background:#e5e7eb;color:#111827}
+.subnav .active{background:var(--mf-blue);color:#fff}
+.kpi{background:#f8fafc;border:1px solid var(--mf-border)}
+.choice.selected{background:var(--mf-blue);color:#fff;outline:3px solid #dbeafe}
+.fixed-mgmt-kpi,.fixed-mgmt-card,.purchase-history-card,.purchase-history-month-card,.history-main-card,.fixed-history-record-card,.person-card,.account-compare-card,.economy-card{box-shadow:none}
+@media(min-width:700px){nav{padding-left:max(10px,calc((100vw - 1050px)/2 + 12px));padding-right:max(10px,calc((100vw - 1050px)/2 + 12px))}}
+</style>
+
+<style id="mf-footer-menu-2x2">
+/* Menu no rodapé — 2 opções por linha */
+body { padding-bottom: 112px; }
+
+nav {
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto !important;
+  z-index: 9990;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0;
+  background: #fff;
+  border-top: 1px solid #d1d5db;
+  border-bottom: 0;
+  box-shadow: 0 -3px 12px rgba(0,0,0,.10);
+  padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
+}
+
+nav button {
+  min-height: 46px !important;
+  padding: 7px 4px !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #4b5563 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+nav button span {
+  display: inline-block !important;
+  font-size: 18px !important;
+  line-height: 18px !important;
+  margin-right: 5px;
+}
+
+nav button.active {
+  color: #2563eb !important;
+  background: #eff6ff !important;
+  border-bottom: 0 !important;
+}
+
+@media (min-width: 700px) {
+  nav {
+    left: 50%;
+    right: auto;
+    width: min(520px, 100%);
+    transform: translateX(-50%);
+    border: 1px solid #d1d5db;
+    border-bottom: 0;
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+body.dark-theme nav {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+body.dark-theme nav button {
+  background: #111827 !important;
+  color: #d1d5db !important;
+}
+body.dark-theme nav button.active {
+  background: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+</style>
+
+</head>
+<body>
+<header><h1>Contas da Casa</h1><small id="headerPeriod"></small></header>
+<nav>
+<button class="active" data-tab="home" onclick="openTab('home')">🏠<br>Início</button>
+<button data-tab="fixas" onclick="openTab('fixas')">🏠<br>Fixas</button>
+<button data-tab="compras" onclick="openTab('compras')">🛒<br>Compras</button>
+<button data-tab="resumo" onclick="openTab('resumo')">📊<br>Resumo</button>
+<button data-tab="gestao" onclick="openTab('gestao')">📈<br>Gestão</button>
+<button onclick="openConfig()">⚙️<br>Config.</button>
+</nav>
+
+<main>
+<section id="home" class="tab active">
+<div class="home-hero">
+<h1>🏠 Contas da Casa</h1><p>Organize • Controle • Economize</p>
+<div class="home-period"><span>Período financeiro</span><br><strong id="homePeriod"></strong><br><small id="homeRange"></small></div>
+</div>
+<div class="home-grid">
+<button class="home-card fix" onclick="openTab('fixas')">🏠<br>CONTAS<small>Lançar e acompanhar as contas</small></button>
+<button class="home-card buy" onclick="openTab('compras')">🛒<br>COMPRAS<small>Supermercado e combustível</small></button>
+<button class="home-card sum" onclick="openTab('resumo')">📊<br>RESUMO<small>Valores e comparativos</small></button>
+<button class="home-card mgmt" onclick="openTab('gestao')">📈<br>GESTÃO À VISTA<small>Análises e indicadores</small></button>
+<button class="home-card hist" onclick="openHistoryFromHome()">📋<br>HISTÓRICOS<small>Compras e contas</small></button>
+<button class="home-card config" onclick="openConfig()">⚙️<br>CONFIGURAÇÕES<small>Famílias, pessoas e segurança</small></button>
+</div>
+
+<div class="home-tip">💡 <b>Controle financeiro simples e eficiente.</b><br><small>Use o menu para lançar, consultar e acompanhar as contas da casa.</small></div>
+
+</section>
+<section id="fixas" class="tab">
+<div id="fixedLancPane">
+<div class="card"><h2>🏠 Contas fixas</h2>
+<label>Período</label><input id="fixedPeriod" type="month" onchange="refreshAll()">
+<div id="fixedLockBanner"></div><div id="fixedList"></div>
+<div class="row total"><b>Total</b><b id="fixedTotal">R$ 0,00</b></div>
+<div class="actions"><button class="btn" id="saveFixedBtn" onclick="saveFixed()">💾 Salvar contas</button><button class="btn secondary" id="importPrevBtn" onclick="toggleImportPrevious()">↳ Importar mês anterior</button></div>
+<div id="importPreviousBox" class="import-box" style="display:none"></div>
+</div>
+<div class="card"><h3>Família</h3><div id="familyChoices" class="choice-grid"></div><div id="familyResult"></div></div>
+</div>
+<div id="fixedGestaoPane">
+<div class="card fixed-management-card">
+<button type="button" id="fixedMgmtToggle" class="purchase-toggle" style="width:100%;display:flex;justify-content:space-between;align-items:center">
+<span>⚙️ <b>Gestão das contas</b></span><span id="fixedMgmtChevron">▼</span>
+</button>
+<div id="fixedMgmtPanel" class="hidden" style="margin-top:12px">
+<h2>📊 Gestão das contas</h2>
+<div class="grid2"><div><label>Mês</label><input id="fixedMgmtPeriod" type="month"></div><div><label>Status</label><select id="fixedMgmtStatus"><option value="">Todas</option><option value="paid">Pagas</option><option value="open">Em aberto</option><option value="overdue">Vencidas</option></select></div></div>
+<label>Conta</label><select id="fixedMgmtAccount"><option value="">Todas</option></select>
+<div id="fixedMgmtContent"></div>
+</div>
+</div>
+</div>
+
+</section>
+
+<section id="compras" class="tab">
+<div class="card"><h2>🛒 Nova compra</h2>
+<div class="grid2"><div><label>Data</label><input id="buyDate" type="date" onchange="showBuyPeriod();toggleOtherPurchaseField()"></div>
+<div><label>Tipo</label><select id="buyType" onchange="showBuyPeriod();toggleOtherPurchaseField()"><option>Supermercado</option><option>Combustível</option><option>Outros</option></select></div></div><div id="otherPurchaseField" style="display:none !important" class="hidden"><label>O que foi?</label><input id="buyOtherDetail" placeholder="Ex.: Presente, jantar, passeio, cinema, mecânico, pedágio, farmácia"></div>
+<label>Quem realizou *</label><div id="buyerChoices" class="choice-grid"></div><input id="buyer" type="hidden">
+<label>Estabelecimento</label><input id="buyStore">
+<label>Valor *</label><input id="buyValue" type="number" step="0.01">
+<label>Observação</label><input id="buyNote">
+<div id="buyPeriod" class="muted" style="margin-top:10px"></div>
+<div class="actions"><button id="buySave" class="btn" onclick="saveBuy()">Salvar compra</button><button class="btn secondary" onclick="cleanDuplicates()">🧹 Corrigir duplicados</button></div>
+</div>
+<div class="card"><h2>Registros</h2>
+<div class="grid2"><div><label>Consultar mês</label><input id="buyListPeriod" type="month" onchange="renderBuyList()"></div><div><label>Filtro rápido</label><select id="buyListType" onchange="renderBuyList()"><option value="">Todas</option><option>Supermercado</option><option>Combustível</option><option>Outros</option></select></div></div>
+<p class="muted">Por padrão, os registros acompanham o mês corrente. Use o filtro para consultar meses anteriores.</p>
+<div id="buyList"></div></div>
+
+</section>
+
+<section id="resumo" class="tab">
+<div class="card"><h2>📊 Resumo</h2>
+<div class="grid2"><div><label>Período</label><input id="sumPeriod" type="month" onchange="renderSummary()"></div>
+<div><label>Histórico</label><select id="sumMode" onchange="renderSummary()"><option value="month">Mês</option><option value="year">Ano</option></select></div></div>
+<div id="summary"></div></div>
+<div class="card"><h3>Gastos por pessoa</h3>
+<div class="grid2"><div><label>Período</label><select id="spMode" onchange="changeSpendMode()"><option value="month">Mês</option><option value="year">Ano</option></select></div>
+<div><label>Tipo</label><select id="spType" onchange="renderPersonSpend()"><option>Supermercado</option><option>Combustível</option></select></div></div>
+<div id="spPeriodBox"></div>
+<label>Pessoa</label><select id="spPerson" onchange="renderPersonSpend()"></select>
+<div id="personSpend"></div></div>
+<div class="card">
+<div class="actions">
+
+<button class="btn" onclick="window.print()">📄 Gerar relatório / PDF</button> <button class="btn secondary" onclick="shareSummary()">📤 Compartilhar</button>
+</div>
+<p class="muted">Compartilhar envia o resumo do período pelo recurso de compartilhamento do celular.</p>
+</div>
+
+</section>
+
+<section id="gestao" class="tab"><div class="card"><h2>📈 Gestão à Vista</h2>
+<div class="subnav"><button class="active" data-s="overview" onclick="setMgmt('overview')">Visão Geral</button><button data-s="accounts" onclick="setMgmt('accounts')">Contas</button><button data-s="people" onclick="setMgmt('people')">Pessoas</button><button data-s="economy" onclick="setMgmt('economy')">Economia 🚦</button><button data-s="history" onclick="setMgmt('history')">📋 Histórico</button></div>
+<div id="mgmt"></div></div>
+</section>
+
+<section id="config" class="tab"><div class="card"><h2>⚙️ Configurações</h2>
+<h3>Período financeiro</h3><label>Dia de fechamento</label><input id="cDay" type="number" min="1" max="28">
+<label><input id="cAuto" type="checkbox" style="width:auto"> Classificar compras automaticamente pela data</label>
+<p class="muted">Fechamento dia 26: dia 27 já pertence ao próximo período.</p>
+<h3>Famílias</h3><div id="cFamilies"></div><div class="actions"><button class="btn secondary" onclick="addFamily()">+ Adicionar família</button></div><p class="muted">Os percentuais das famílias precisam totalizar 100%.</p>
+<h3>Pessoas</h3><div id="cPeople"></div><div class="actions"><button class="btn secondary" onclick="addPerson()">+ Adicionar pessoa</button></div>
+<h3>WhatsApp</h3><label><input id="cDetailed" type="checkbox" style="width:auto"> Permitir mensagem detalhada</label><h3>🗑️ Exclusão de registros</h3>
+<label><input id="cDelete" type="checkbox" style="width:auto"> Habilitar exclusão de registros na aba Compras</label>
+<p class="muted">Use somente para corrigir lançamentos incorretos. A exclusão fica desabilitada por padrão.</p>
+<h3>Segurança</h3><label>Nova senha</label><input id="cPass" type="password">
+<div class="actions"><button class="btn" onclick="saveConfig()">💾 Salvar configurações</button></div>
+
+<h3>🔐 Bloqueio dos valores das Contas</h3>
+<label><input id="fixedValueLock" type="checkbox" style="width:auto"> Bloquear valores das contas depois de salvar</label>
+<p class="muted">Depois de salvar um mês, os valores ficam somente para consulta. Para alterar, selecione o mês abaixo e confirme com a senha do ADM.</p>
+<label>Meses que ficarão desbloqueados</label><div id="fixedUnlockMonths" class="choice-grid"></div>
+<div class="actions"><button class="btn secondary" onclick="unlockFixedSelectedMonths()">🔓 Desbloquear meses selecionados</button></div>
+<h3>🔒 Trava de segurança das Contas</h3>
+<label><input id="fixedLockEnabled" type="checkbox" style="width:auto"> Bloquear meses encerrados e liberar o próximo mês somente nos últimos 10 dias</label>
+<p class="muted">Alterar esta trava exige a senha do administrador. O histórico continua preservado.</p>
+<h3>💾 Backup dos dados</h3>
+<p class="muted">Exporte uma cópia de segurança para guardar no celular, nuvem ou computador. Para restaurar, selecione o arquivo de backup.</p>
+<div class="actions">
+<button class="btn" onclick="exportBackup()">⬇️ Exportar backup</button>
+<label class="btn secondary" style="cursor:pointer">⬆️ Importar backup<input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(event)"></label>
+</div>
+</div></section>
+</main>
+
+<div id="modal" class="modal"><div class="card"><h2>🔒 Configurações</h2><label>Senha</label><input id="pass" type="password"><div class="actions"><button class="btn" onclick="unlock()">Entrar</button><button class="btn secondary" onclick="closeModal()">Cancelar</button></div></div></div>
+
+<script>
+const KEY='CONTAS_CASA_HISTORICO_REAL_2026_V1';
+const DEFAULT={families:[{name:'Família A',pct:35,phone:''},{name:'Família B',pct:35,phone:''},{name:'Família C',pct:30,phone:''}],people:['Pessoa 1','Pessoa 2','Pessoa 3'],accounts:['Água','Força','Gás','TV','Internet','Spotify'],password:'1234',closeDay:26,auto:true,detailed:false,deleteEnabled:false,months:{},fixedValueLock:true,fixedUnlockedMonths:[]};
+let db=load(),familySel=0,edit=null,mgmtSel='overview',peopleMgmtPeriod='',mgmtAccountsYear='',mgmtOverviewMode='last12';db.fixedValueLock=db.fixedValueLock!==false;db.fixedUnlockedMonths=Array.isArray(db.fixedUnlockedMonths)?db.fixedUnlockedMonths:[];
+// Histórico real importado da planilha CONTAS A PAGAR MENSAL.xlsm.
+// Período: janeiro a agosto de 2026. Compras respeitam o fechamento 27→26.
+const IMPORTED_2026 = {"2026-01":{"accounts":{"Água":71.08,"Força":565.12,"Gás":130,"TV":120,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-01-26","buyer":"YARA","type":"Supermercado","store":"","value":244.0,"note":""},{"date":"2026-01-25","buyer":"YARA","type":"Combustível","store":"","value":35.0,"note":""},{"date":"2026-01-23","buyer":"YARA","type":"Supermercado","store":"","value":100.0,"note":""},{"date":"2026-01-23","buyer":"MAH","type":"Supermercado","store":"","value":113.47,"note":""},{"date":"2026-01-23","buyer":"YARA","type":"Supermercado","store":"","value":24.99,"note":""},{"date":"2026-01-23","buyer":"JOÃO","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-01-23","buyer":"YARA","type":"Combustível","store":"","value":25.0,"note":""},{"date":"2026-01-19","buyer":"MAH","type":"Supermercado","store":"","value":10.0,"note":""},{"date":"2026-01-19","buyer":"YARA","type":"Supermercado","store":"","value":164.0,"note":""},{"date":"2026-01-19","buyer":"YARA","type":"Combustível","store":"","value":250.0,"note":""},{"date":"2026-01-19","buyer":"YARA","type":"Supermercado","store":"","value":5.99,"note":""},{"date":"2026-01-17","buyer":"YARA","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-01-16","buyer":"YARA","type":"Supermercado","store":"","value":14.95,"note":""},{"date":"2026-01-16","buyer":"YARA","type":"Supermercado","store":"","value":79.09,"note":""},{"date":"2026-01-16","buyer":"YARA","type":"Combustível","store":"","value":25.0,"note":""},{"date":"2026-01-16","buyer":"MAH","type":"Combustível","store":"","value":25.0,"note":""},{"date":"2026-01-15","buyer":"YARA","type":"Supermercado","store":"","value":23.0,"note":""},{"date":"2026-01-15","buyer":"MAH","type":"Supermercado","store":"","value":278.0,"note":""},{"date":"2026-01-14","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-01-13","buyer":"YARA","type":"Supermercado","store":"","value":80.42,"note":""},{"date":"2026-01-13","buyer":"YARA","type":"Supermercado","store":"","value":27.44,"note":""},{"date":"2026-01-13","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-01-10","buyer":"YARA","type":"Supermercado","store":"","value":90.4,"note":""},{"date":"2026-01-09","buyer":"JOÃO","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-01-09","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-01-09","buyer":"YARA","type":"Supermercado","store":"","value":188.99,"note":""},{"date":"2026-01-07","buyer":"YARA","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-01-07","buyer":"YARA","type":"Supermercado","store":"","value":19.0,"note":""},{"date":"2026-01-05","buyer":"YARA","type":"Combustível","store":"","value":85.6,"note":""},{"date":"2026-01-05","buyer":"YARA","type":"Supermercado","store":"","value":87.09,"note":""},{"date":"2026-01-03","buyer":"JOÃO","type":"Supermercado","store":"","value":10.42,"note":""},{"date":"2026-01-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":30.0,"note":""},{"date":"2026-01-03","buyer":"MAH","type":"Supermercado","store":"","value":60.0,"note":""},{"date":"2026-01-03","buyer":"YARA","type":"Supermercado","store":"","value":169.0,"note":""},{"date":"2026-01-02","buyer":"MAH","type":"Supermercado","store":"","value":182.45,"note":""}]},"2026-02":{"accounts":{"Água":36.31,"Força":523.27,"Gás":130,"TV":120,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-02-25","buyer":"RODRIGO","type":"Combustível","store":"","value":24.0,"note":""},{"date":"2026-02-25","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-02-23","buyer":"RODRIGO","type":"Combustível","store":"","value":20.0,"note":""},{"date":"2026-02-23","buyer":"YARA","type":"Combustível","store":"","value":10.0,"note":""},{"date":"2026-02-21","buyer":"YARA","type":"Combustível","store":"","value":67.9,"note":""},{"date":"2026-02-21","buyer":"RODRIGO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-02-21","buyer":"RODRIGO","type":"Combustível","store":"","value":130.0,"note":""},{"date":"2026-02-21","buyer":"YARA","type":"Supermercado","store":"","value":998.67,"note":""},{"date":"2026-02-16","buyer":"YARA","type":"Supermercado","store":"","value":222.04,"note":""},{"date":"2026-02-16","buyer":"YARA","type":"Supermercado","store":"","value":84.62,"note":""},{"date":"2026-02-16","buyer":"YARA","type":"Combustível","store":"","value":150.0,"note":""},{"date":"2026-02-14","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-02-11","buyer":"RODRIGO","type":"Supermercado","store":"","value":155.06,"note":""},{"date":"2026-02-11","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-02-10","buyer":"RODRIGO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-02-09","buyer":"MAH","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-02-09","buyer":"YARA","type":"Supermercado","store":"","value":165.88,"note":""},{"date":"2026-02-09","buyer":"YARA","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-02-09","buyer":"YARA","type":"Supermercado","store":"","value":142.64,"note":""},{"date":"2026-02-07","buyer":"YARA","type":"Supermercado","store":"","value":72.73,"note":""},{"date":"2026-02-05","buyer":"MAH","type":"Supermercado","store":"","value":86.43,"note":""},{"date":"2026-02-05","buyer":"YARA","type":"Supermercado","store":"","value":122.81,"note":""},{"date":"2026-02-04","buyer":"YARA","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-02-04","buyer":"YARA","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-02-04","buyer":"YARA","type":"Combustível","store":"","value":80.0,"note":""},{"date":"2026-02-04","buyer":"MAH","type":"Combustível","store":"","value":20.0,"note":""},{"date":"2026-01-30","buyer":"YARA","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-01-30","buyer":"YARA","type":"Supermercado","store":"","value":605.12,"note":""},{"date":"2026-01-30","buyer":"MAH","type":"Supermercado","store":"","value":337.11,"note":""}]},"2026-03":{"accounts":{"Água":35.54,"Força":560.96,"Gás":130,"TV":120,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-03-26","buyer":"DITO","type":"Supermercado","store":"","value":9.47,"note":""},{"date":"2026-03-26","buyer":"RODRIGO","type":"Supermercado","store":"","value":113.85,"note":""},{"date":"2026-03-26","buyer":"YARA","type":"Supermercado","store":"","value":54.94,"note":""},{"date":"2026-03-26","buyer":"YARA","type":"Supermercado","store":"","value":174.0,"note":""},{"date":"2026-03-25","buyer":"DITO","type":"Supermercado","store":"","value":9.43,"note":""},{"date":"2026-03-25","buyer":"RODRIGO","type":"Supermercado","store":"","value":11.2,"note":""},{"date":"2026-03-24","buyer":"YARA","type":"Supermercado","store":"","value":30.0,"note":""},{"date":"2026-03-24","buyer":"RODRIGO","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-03-24","buyer":"YARA","type":"Supermercado","store":"","value":42.0,"note":""},{"date":"2026-03-24","buyer":"MAH","type":"Supermercado","store":"","value":66.0,"note":""},{"date":"2026-03-24","buyer":"DITO","type":"Supermercado","store":"","value":22.0,"note":""},{"date":"2026-03-24","buyer":"DITO","type":"Supermercado","store":"","value":10.29,"note":""},{"date":"2026-03-23","buyer":"DITO","type":"Supermercado","store":"","value":9.2,"note":""},{"date":"2026-03-22","buyer":"YARA","type":"Supermercado","store":"","value":52.0,"note":""},{"date":"2026-03-22","buyer":"DITO","type":"Supermercado","store":"","value":31.5,"note":""},{"date":"2026-03-22","buyer":"MAH","type":"Supermercado","store":"","value":7.0,"note":""},{"date":"2026-03-22","buyer":"RODRIGO","type":"Supermercado","store":"","value":5.82,"note":""},{"date":"2026-03-22","buyer":"YARA","type":"Supermercado","store":"","value":32.0,"note":""},{"date":"2026-03-22","buyer":"MAH","type":"Supermercado","store":"","value":25.0,"note":""},{"date":"2026-03-21","buyer":"DITO","type":"Supermercado","store":"","value":9.96,"note":""},{"date":"2026-03-20","buyer":"JOÃO","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-03-20","buyer":"YARA","type":"Combustível","store":"","value":136.0,"note":""},{"date":"2026-03-20","buyer":"MAH","type":"Supermercado","store":"","value":500.0,"note":""},{"date":"2026-03-20","buyer":"YARA","type":"Supermercado","store":"","value":1245.99,"note":""},{"date":"2026-03-20","buyer":"DITO","type":"Supermercado","store":"","value":9.35,"note":""},{"date":"2026-03-19","buyer":"DITO","type":"Supermercado","store":"","value":9.87,"note":""},{"date":"2026-03-18","buyer":"RODRIGO","type":"Supermercado","store":"","value":150.0,"note":""},{"date":"2026-03-18","buyer":"YARA","type":"Supermercado","store":"","value":42.0,"note":""},{"date":"2026-03-18","buyer":"DITO","type":"Supermercado","store":"","value":9.65,"note":""},{"date":"2026-03-17","buyer":"RODRIGO","type":"Combustível","store":"","value":20.0,"note":""},{"date":"2026-03-17","buyer":"JOÃO","type":"Combustível","store":"","value":20.0,"note":""},{"date":"2026-03-17","buyer":"DITO","type":"Supermercado","store":"","value":9.48,"note":""},{"date":"2026-03-16","buyer":"DITO","type":"Supermercado","store":"","value":9.69,"note":""},{"date":"2026-03-15","buyer":"DITO","type":"Supermercado","store":"","value":12.34,"note":""},{"date":"2026-03-14","buyer":"YARA","type":"Combustível","store":"","value":36.0,"note":""},{"date":"2026-03-14","buyer":"YARA","type":"Supermercado","store":"","value":91.6,"note":""},{"date":"2026-03-14","buyer":"YARA","type":"Supermercado","store":"","value":259.49,"note":""},{"date":"2026-03-14","buyer":"DITO","type":"Supermercado","store":"","value":11.98,"note":""},{"date":"2026-03-13","buyer":"MAH","type":"Supermercado","store":"","value":20.0,"note":""},{"date":"2026-03-13","buyer":"RODRIGO","type":"Supermercado","store":"","value":75.87,"note":""},{"date":"2026-03-13","buyer":"YARA","type":"Combustível","store":"","value":200.0,"note":""},{"date":"2026-03-13","buyer":"DITO","type":"Supermercado","store":"","value":9.64,"note":""},{"date":"2026-03-12","buyer":"DITO","type":"Supermercado","store":"","value":9.51,"note":""},{"date":"2026-03-11","buyer":"RODRIGO","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-03-11","buyer":"RODRIGO","type":"Combustível","store":"","value":35.0,"note":""},{"date":"2026-03-11","buyer":"YARA","type":"Supermercado","store":"","value":59.23,"note":""},{"date":"2026-03-11","buyer":"DITO","type":"Supermercado","store":"","value":9.62,"note":""},{"date":"2026-03-10","buyer":"YARA","type":"Supermercado","store":"","value":231.0,"note":""},{"date":"2026-03-10","buyer":"DITO","type":"Supermercado","store":"","value":9.25,"note":""},{"date":"2026-03-09","buyer":"RODRIGO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-03-09","buyer":"YARA","type":"Supermercado","store":"","value":28.8,"note":""},{"date":"2026-03-09","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-03-09","buyer":"DITO","type":"Supermercado","store":"","value":9.7,"note":""},{"date":"2026-03-08","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-03-08","buyer":"DITO","type":"Supermercado","store":"","value":51.02,"note":""},{"date":"2026-03-07","buyer":"MAH","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-03-07","buyer":"YARA","type":"Supermercado","store":"","value":69.57,"note":""},{"date":"2026-03-07","buyer":"DITO","type":"Supermercado","store":"","value":12.35,"note":""},{"date":"2026-03-06","buyer":"RODRIGO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-03-06","buyer":"DITO","type":"Supermercado","store":"","value":9.69,"note":""},{"date":"2026-03-05","buyer":"RODRIGO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-03-05","buyer":"DITO","type":"Supermercado","store":"","value":9.61,"note":""},{"date":"2026-03-04","buyer":"YARA","type":"Supermercado","store":"","value":470.52,"note":""},{"date":"2026-03-04","buyer":"JOÃO","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-03-04","buyer":"DITO","type":"Supermercado","store":"","value":9.89,"note":""},{"date":"2026-03-03","buyer":"MAH","type":"Supermercado","store":"","value":115.0,"note":""},{"date":"2026-03-03","buyer":"MAH","type":"Combustível","store":"","value":210.0,"note":""},{"date":"2026-03-03","buyer":"YARA","type":"Combustível","store":"","value":701.1,"note":""},{"date":"2026-03-03","buyer":"DITO","type":"Supermercado","store":"","value":9.78,"note":""},{"date":"2026-03-02","buyer":"DITO","type":"Supermercado","store":"","value":9.48,"note":""},{"date":"2026-03-01","buyer":"DITO","type":"Supermercado","store":"","value":54.96,"note":""},{"date":"2026-02-28","buyer":"DITO","type":"Supermercado","store":"","value":11.58,"note":""},{"date":"2026-02-27","buyer":"DITO","type":"Supermercado","store":"","value":9.54,"note":""}]},"2026-04":{"accounts":{"Água":40,"Força":524.94,"Gás":130,"TV":125,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-04-26","buyer":"DITO","type":"Supermercado","store":"","value":10.8,"note":""},{"date":"2026-04-25","buyer":"DITO","type":"Supermercado","store":"","value":10.0,"note":""},{"date":"2026-04-24","buyer":"DITO","type":"Supermercado","store":"","value":9.2,"note":""},{"date":"2026-04-23","buyer":"YARA","type":"Supermercado","store":"","value":31.97,"note":""},{"date":"2026-04-23","buyer":"YARA","type":"Supermercado","store":"","value":96.2,"note":""},{"date":"2026-04-23","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-04-23","buyer":"DITO","type":"Supermercado","store":"","value":9.65,"note":""},{"date":"2026-04-22","buyer":"DITO","type":"Supermercado","store":"","value":9.85,"note":""},{"date":"2026-04-21","buyer":"RODRIGO","type":"Supermercado","store":"","value":23.48,"note":""},{"date":"2026-04-21","buyer":"RODRIGO","type":"Supermercado","store":"","value":53.27,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Supermercado","store":"","value":230.0,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Supermercado","store":"","value":78.0,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Supermercado","store":"","value":41.25,"note":""},{"date":"2026-04-21","buyer":"RODRIGO","type":"Combustível","store":"","value":11.1,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Supermercado","store":"","value":151.1,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Combustível","store":"","value":134.49,"note":""},{"date":"2026-04-21","buyer":"YARA","type":"Supermercado","store":"","value":55.91,"note":""},{"date":"2026-04-21","buyer":"DITO","type":"Supermercado","store":"","value":11.9,"note":""},{"date":"2026-04-20","buyer":"DITO","type":"Supermercado","store":"","value":13.0,"note":""},{"date":"2026-04-19","buyer":"YARA","type":"Supermercado","store":"","value":12.77,"note":""},{"date":"2026-04-18","buyer":"RODRIGO","type":"Supermercado","store":"","value":5.36,"note":""},{"date":"2026-04-18","buyer":"DITO","type":"Supermercado","store":"","value":111.25,"note":""},{"date":"2026-04-18","buyer":"DITO","type":"Supermercado","store":"","value":11.77,"note":""},{"date":"2026-04-17","buyer":"DITO","type":"Combustível","store":"","value":70.0,"note":""},{"date":"2026-04-17","buyer":"YARA","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-04-17","buyer":"DITO","type":"Supermercado","store":"","value":9.8,"note":""},{"date":"2026-04-17","buyer":"YARA","type":"Supermercado","store":"","value":30.0,"note":""},{"date":"2026-04-17","buyer":"RODRIGO","type":"Supermercado","store":"","value":26.94,"note":""},{"date":"2026-04-16","buyer":"MAH","type":"Supermercado","store":"","value":118.01,"note":""},{"date":"2026-04-16","buyer":"RODRIGO","type":"Supermercado","store":"","value":32.97,"note":""},{"date":"2026-04-16","buyer":"YARA","type":"Supermercado","store":"","value":90.0,"note":""},{"date":"2026-04-15","buyer":"DITO","type":"Supermercado","store":"","value":10.0,"note":""},{"date":"2026-04-15","buyer":"YARA","type":"Supermercado","store":"","value":12.0,"note":""},{"date":"2026-04-15","buyer":"YARA","type":"Supermercado","store":"","value":120.0,"note":""},{"date":"2026-04-14","buyer":"DITO","type":"Supermercado","store":"","value":8.7,"note":""},{"date":"2026-04-13","buyer":"DITO","type":"Supermercado","store":"","value":9.2,"note":""},{"date":"2026-04-13","buyer":"YARA","type":"Combustível","store":"","value":230.0,"note":""},{"date":"2026-04-12","buyer":"YARA","type":"Supermercado","store":"","value":480.0,"note":""},{"date":"2026-04-12","buyer":"RODRIGO","type":"Supermercado","store":"","value":11.54,"note":""},{"date":"2026-04-11","buyer":"RODRIGO","type":"Supermercado","store":"","value":62.99,"note":""},{"date":"2026-04-11","buyer":"YARA","type":"Supermercado","store":"","value":44.02,"note":""},{"date":"2026-04-11","buyer":"DITO","type":"Supermercado","store":"","value":12.07,"note":""},{"date":"2026-04-10","buyer":"DITO","type":"Supermercado","store":"","value":8.77,"note":""},{"date":"2026-04-09","buyer":"RODRIGO","type":"Supermercado","store":"","value":42.47,"note":""},{"date":"2026-04-09","buyer":"YARA","type":"Supermercado","store":"","value":28.9,"note":""},{"date":"2026-04-09","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-04-09","buyer":"DITO","type":"Supermercado","store":"","value":9.2,"note":""},{"date":"2026-04-08","buyer":"YARA","type":"Supermercado","store":"","value":25.0,"note":""},{"date":"2026-04-08","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-04-08","buyer":"DITO","type":"Supermercado","store":"","value":9.8,"note":""},{"date":"2026-04-07","buyer":"RODRIGO","type":"Supermercado","store":"","value":23.46,"note":""},{"date":"2026-04-07","buyer":"YARA","type":"Supermercado","store":"","value":85.0,"note":""},{"date":"2026-04-06","buyer":"MAH","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-04-06","buyer":"YARA","type":"Supermercado","store":"","value":103.44,"note":""},{"date":"2026-04-06","buyer":"RODRIGO","type":"Supermercado","store":"","value":21.48,"note":""},{"date":"2026-04-05","buyer":"DITO","type":"Supermercado","store":"","value":56.53,"note":""},{"date":"2026-04-04","buyer":"RODRIGO","type":"Supermercado","store":"","value":20.84,"note":""},{"date":"2026-04-04","buyer":"YARA","type":"Supermercado","store":"","value":210.0,"note":""},{"date":"2026-04-04","buyer":"DITO","type":"Supermercado","store":"","value":12.71,"note":""},{"date":"2026-04-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":51.0,"note":""},{"date":"2026-04-03","buyer":"DITO","type":"Combustível","store":"","value":70.0,"note":""},{"date":"2026-04-03","buyer":"DITO","type":"Supermercado","store":"","value":9.43,"note":""},{"date":"2026-04-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":46.0,"note":""},{"date":"2026-04-03","buyer":"RODRIGO","type":"Combustível","store":"","value":90.0,"note":""},{"date":"2026-04-03","buyer":"YARA","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-04-03","buyer":"YARA","type":"Combustível","store":"","value":60.0,"note":""},{"date":"2026-04-02","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-04-02","buyer":"RODRIGO","type":"Supermercado","store":"","value":23.84,"note":""},{"date":"2026-04-02","buyer":"RODRIGO","type":"Supermercado","store":"","value":22.0,"note":""},{"date":"2026-04-02","buyer":"YARA","type":"Supermercado","store":"","value":12.0,"note":""},{"date":"2026-04-02","buyer":"YARA","type":"Supermercado","store":"","value":165.05,"note":""},{"date":"2026-04-02","buyer":"RODRIGO","type":"Supermercado","store":"","value":24.15,"note":""},{"date":"2026-04-02","buyer":"DITO","type":"Supermercado","store":"","value":18.65,"note":""},{"date":"2026-03-31","buyer":"DITO","type":"Supermercado","store":"","value":9.03,"note":""},{"date":"2026-03-31","buyer":"DITO","type":"Combustível","store":"","value":236.0,"note":""},{"date":"2026-03-31","buyer":"YARA","type":"Supermercado","store":"","value":240.0,"note":""},{"date":"2026-03-31","buyer":"YARA","type":"Supermercado","store":"","value":1235.0,"note":""},{"date":"2026-03-31","buyer":"MAH","type":"Combustível","store":"","value":60.0,"note":""},{"date":"2026-03-31","buyer":"YARA","type":"Combustível","store":"","value":521.0,"note":""},{"date":"2026-03-31","buyer":"RODRIGO","type":"Supermercado","store":"","value":300.0,"note":""},{"date":"2026-03-27","buyer":"RODRIGO","type":"Supermercado","store":"","value":2.6,"note":""}]},"2026-05":{"accounts":{"Água":40,"Força":457.21,"Gás":130,"TV":125,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-05-26","buyer":"YARA","type":"Supermercado","store":"","value":41.0,"note":""},{"date":"2026-05-26","buyer":"DITO","type":"Supermercado","store":"","value":8.66,"note":""},{"date":"2026-05-25","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-25","buyer":"YARA","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-05-25","buyer":"DITO","type":"Supermercado","store":"","value":4.85,"note":""},{"date":"2026-05-25","buyer":"RODRIGO","type":"Supermercado","store":"","value":32.65,"note":""},{"date":"2026-05-24","buyer":"MAH","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Combustível","store":"","value":80.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Combustível","store":"","value":68.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":11.76,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":79.14,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":233.78,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":8.73,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":10.83,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":11.45,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":9.27,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":230.35,"note":""},{"date":"2026-05-24","buyer":"RODRIGO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":380.1,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":145.58,"note":""},{"date":"2026-05-24","buyer":"DITO","type":"Supermercado","store":"","value":10.66,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":451.58,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-05-24","buyer":"YARA","type":"Supermercado","store":"","value":59.25,"note":""},{"date":"2026-05-16","buyer":"DITO","type":"Supermercado","store":"","value":9.0,"note":""},{"date":"2026-05-16","buyer":"RODRIGO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-05-14","buyer":"DITO","type":"Supermercado","store":"","value":11.1,"note":""},{"date":"2026-05-14","buyer":"YARA","type":"Supermercado","store":"","value":40.22,"note":""},{"date":"2026-05-13","buyer":"RODRIGO","type":"Supermercado","store":"","value":20.69,"note":""},{"date":"2026-05-13","buyer":"YARA","type":"Supermercado","store":"","value":98.82,"note":""},{"date":"2026-05-13","buyer":"DITO","type":"Supermercado","store":"","value":9.1,"note":""},{"date":"2026-05-12","buyer":"DITO","type":"Supermercado","store":"","value":10.4,"note":""},{"date":"2026-05-11","buyer":"MAH","type":"Supermercado","store":"","value":63.1,"note":""},{"date":"2026-05-11","buyer":"YARA","type":"Supermercado","store":"","value":131.7,"note":""},{"date":"2026-05-11","buyer":"YARA","type":"Supermercado","store":"","value":5.73,"note":""},{"date":"2026-05-11","buyer":"RODRIGO","type":"Combustível","store":"","value":60.0,"note":""},{"date":"2026-05-11","buyer":"DITO","type":"Combustível","store":"","value":70.0,"note":""},{"date":"2026-05-11","buyer":"DITO","type":"Supermercado","store":"","value":9.55,"note":""},{"date":"2026-05-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":14.1,"note":""},{"date":"2026-05-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":15.78,"note":""},{"date":"2026-05-10","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":14.0,"note":""},{"date":"2026-05-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":60.0,"note":""},{"date":"2026-05-10","buyer":"JOÃO","type":"Supermercado","store":"","value":30.0,"note":""},{"date":"2026-05-10","buyer":"DITO","type":"Supermercado","store":"","value":12.6,"note":""},{"date":"2026-05-09","buyer":"DITO","type":"Supermercado","store":"","value":12.55,"note":""},{"date":"2026-05-08","buyer":"DITO","type":"Supermercado","store":"","value":7.6,"note":""},{"date":"2026-05-08","buyer":"YARA","type":"Supermercado","store":"","value":12.99,"note":""},{"date":"2026-05-08","buyer":"RODRIGO","type":"Supermercado","store":"","value":189.98,"note":""},{"date":"2026-05-08","buyer":"YARA","type":"Combustível","store":"","value":88.0,"note":""},{"date":"2026-05-08","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-06","buyer":"YARA","type":"Supermercado","store":"","value":118.88,"note":""},{"date":"2026-05-06","buyer":"YARA","type":"Supermercado","store":"","value":253.0,"note":""},{"date":"2026-05-06","buyer":"MAH","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-05-06","buyer":"DITO","type":"Supermercado","store":"","value":9.6,"note":""},{"date":"2026-05-05","buyer":"DITO","type":"Supermercado","store":"","value":9.8,"note":""},{"date":"2026-05-05","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-05","buyer":"RODRIGO","type":"Supermercado","store":"","value":134.0,"note":""},{"date":"2026-05-04","buyer":"DITO","type":"Supermercado","store":"","value":9.55,"note":""},{"date":"2026-05-03","buyer":"DITO","type":"Supermercado","store":"","value":45.19,"note":""},{"date":"2026-05-03","buyer":"YARA","type":"Supermercado","store":"","value":36.39,"note":""},{"date":"2026-05-03","buyer":"YARA","type":"Supermercado","store":"","value":168.28,"note":""},{"date":"2026-05-02","buyer":"DITO","type":"Supermercado","store":"","value":12.0,"note":""},{"date":"2026-05-02","buyer":"RODRIGO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-05-02","buyer":"RODRIGO","type":"Supermercado","store":"","value":11.48,"note":""},{"date":"2026-05-02","buyer":"RODRIGO","type":"Supermercado","store":"","value":52.22,"note":""},{"date":"2026-05-01","buyer":"DITO","type":"Supermercado","store":"","value":10.75,"note":""},{"date":"2026-05-01","buyer":"MAH","type":"Supermercado","store":"","value":19.0,"note":""},{"date":"2026-05-01","buyer":"YARA","type":"Supermercado","store":"","value":39.0,"note":""},{"date":"2026-05-01","buyer":"RODRIGO","type":"Supermercado","store":"","value":37.9,"note":""},{"date":"2026-05-01","buyer":"YARA","type":"Combustível","store":"","value":20.0,"note":""},{"date":"2026-05-01","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-01","buyer":"YARA","type":"Supermercado","store":"","value":100.6,"note":""},{"date":"2026-05-01","buyer":"DITO","type":"Supermercado","store":"","value":28.62,"note":""},{"date":"2026-05-01","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-05-01","buyer":"RODRIGO","type":"Supermercado","store":"","value":15.34,"note":""},{"date":"2026-05-01","buyer":"YARA","type":"Supermercado","store":"","value":101.37,"note":""},{"date":"2026-04-27","buyer":"YARA","type":"Supermercado","store":"","value":43.25,"note":""},{"date":"2026-04-27","buyer":"YARA","type":"Combustível","store":"","value":65.0,"note":""},{"date":"2026-04-27","buyer":"YARA","type":"Supermercado","store":"","value":393.14,"note":""},{"date":"2026-04-27","buyer":"YARA","type":"Supermercado","store":"","value":687.77,"note":""},{"date":"2026-04-27","buyer":"RODRIGO","type":"Combustível","store":"","value":35.0,"note":""},{"date":"2026-04-27","buyer":"RODRIGO","type":"Supermercado","store":"","value":117.88,"note":""},{"date":"2026-04-27","buyer":"DITO","type":"Supermercado","store":"","value":9.3,"note":""}]},"2026-06":{"accounts":{"Água":40,"Força":588.25,"Gás":130,"TV":125,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-06-26","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-06-25","buyer":"YARA","type":"Supermercado","store":"","value":165.0,"note":""},{"date":"2026-06-25","buyer":"RODRIGO","type":"Supermercado","store":"","value":8.76,"note":""},{"date":"2026-06-25","buyer":"DITO","type":"Supermercado","store":"","value":7.98,"note":""},{"date":"2026-06-25","buyer":"YARA","type":"Supermercado","store":"","value":993.47,"note":""},{"date":"2026-06-23","buyer":"YARA","type":"Supermercado","store":"","value":18.71,"note":""},{"date":"2026-06-23","buyer":"YARA","type":"Supermercado","store":"","value":37.13,"note":""},{"date":"2026-06-23","buyer":"YARA","type":"Supermercado","store":"","value":37.79,"note":""},{"date":"2026-06-23","buyer":"RODRIGO","type":"Supermercado","store":"","value":8.99,"note":""},{"date":"2026-06-23","buyer":"YARA","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-06-23","buyer":"DITO","type":"Supermercado","store":"","value":44.4,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":19.94,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":8.29,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":7.98,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":8.46,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":7.54,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":7.54,"note":""},{"date":"2026-06-22","buyer":"RODRIGO","type":"Supermercado","store":"","value":9.0,"note":""},{"date":"2026-06-22","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-06-22","buyer":"RODRIGO","type":"Supermercado","store":"","value":17.38,"note":""},{"date":"2026-06-22","buyer":"YARA","type":"Supermercado","store":"","value":33.99,"note":""},{"date":"2026-06-22","buyer":"RODRIGO","type":"Supermercado","store":"","value":21.98,"note":""},{"date":"2026-06-22","buyer":"DITO","type":"Supermercado","store":"","value":10.02,"note":""},{"date":"2026-06-22","buyer":"YARA","type":"Supermercado","store":"","value":132.88,"note":""},{"date":"2026-06-22","buyer":"YARA","type":"Supermercado","store":"","value":119.51,"note":""},{"date":"2026-06-15","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-06-15","buyer":"YARA","type":"Combustível","store":"","value":60.0,"note":""},{"date":"2026-06-15","buyer":"YARA","type":"Combustível","store":"","value":66.0,"note":""},{"date":"2026-06-15","buyer":"YARA","type":"Combustível","store":"","value":130.0,"note":""},{"date":"2026-06-15","buyer":"RODRIGO","type":"Supermercado","store":"","value":20.0,"note":""},{"date":"2026-06-15","buyer":"RODRIGO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-06-15","buyer":"YARA","type":"Supermercado","store":"","value":233.58,"note":""},{"date":"2026-06-15","buyer":"DITO","type":"Supermercado","store":"","value":8.15,"note":""},{"date":"2026-06-15","buyer":"RODRIGO","type":"Supermercado","store":"","value":83.0,"note":""},{"date":"2026-06-15","buyer":"JOÃO","type":"Supermercado","store":"","value":40.9,"note":""},{"date":"2026-06-15","buyer":"RODRIGO","type":"Supermercado","store":"","value":24.31,"note":""},{"date":"2026-06-11","buyer":"RODRIGO","type":"Supermercado","store":"","value":21.64,"note":""},{"date":"2026-06-11","buyer":"YARA","type":"Supermercado","store":"","value":75.21,"note":""},{"date":"2026-06-11","buyer":"MAH","type":"Supermercado","store":"","value":400.0,"note":""},{"date":"2026-06-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":58.53,"note":""},{"date":"2026-06-10","buyer":"RODRIGO","type":"Supermercado","store":"","value":37.33,"note":""},{"date":"2026-06-10","buyer":"DITO","type":"Supermercado","store":"","value":8.66,"note":""},{"date":"2026-06-10","buyer":"DITO","type":"Supermercado","store":"","value":9.64,"note":""},{"date":"2026-06-10","buyer":"YARA","type":"Supermercado","store":"","value":85.0,"note":""},{"date":"2026-06-07","buyer":"DITO","type":"Combustível","store":"","value":80.0,"note":""},{"date":"2026-06-07","buyer":"YARA","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-06-07","buyer":"YARA","type":"Supermercado","store":"","value":48.5,"note":""},{"date":"2026-06-07","buyer":"DITO","type":"Supermercado","store":"","value":10.57,"note":""},{"date":"2026-06-07","buyer":"YARA","type":"Supermercado","store":"","value":207.43,"note":""},{"date":"2026-06-07","buyer":"DITO","type":"Supermercado","store":"","value":9.47,"note":""},{"date":"2026-06-07","buyer":"DITO","type":"Supermercado","store":"","value":12.99,"note":""},{"date":"2026-06-07","buyer":"DITO","type":"Supermercado","store":"","value":19.24,"note":""},{"date":"2026-06-03","buyer":"YARA","type":"Supermercado","store":"","value":84.0,"note":""},{"date":"2026-06-03","buyer":"YARA","type":"Supermercado","store":"","value":12.1,"note":""},{"date":"2026-06-03","buyer":"YARA","type":"Supermercado","store":"","value":43.77,"note":""},{"date":"2026-06-03","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-06-03","buyer":"DITO","type":"Supermercado","store":"","value":8.63,"note":""},{"date":"2026-06-02","buyer":"YARA","type":"Supermercado","store":"","value":260.54,"note":""},{"date":"2026-06-01","buyer":"YARA","type":"Supermercado","store":"","value":93.86,"note":""},{"date":"2026-05-31","buyer":"JOÃO","type":"Combustível","store":"","value":30.0,"note":""},{"date":"2026-05-31","buyer":"JOÃO","type":"Supermercado","store":"","value":42.0,"note":""},{"date":"2026-05-31","buyer":"JOÃO","type":"Supermercado","store":"","value":45.0,"note":""},{"date":"2026-05-31","buyer":"YARA","type":"Supermercado","store":"","value":28.43,"note":""},{"date":"2026-05-31","buyer":"DITO","type":"Supermercado","store":"","value":18.62,"note":""},{"date":"2026-05-31","buyer":"DITO","type":"Supermercado","store":"","value":9.27,"note":""},{"date":"2026-05-31","buyer":"RODRIGO","type":"Supermercado","store":"","value":12.99,"note":""},{"date":"2026-05-31","buyer":"RODRIGO","type":"Combustível","store":"","value":40.0,"note":""},{"date":"2026-05-31","buyer":"DITO","type":"Supermercado","store":"","value":10.43,"note":""},{"date":"2026-05-31","buyer":"DITO","type":"Supermercado","store":"","value":9.37,"note":""},{"date":"2026-05-31","buyer":"YARA","type":"Supermercado","store":"","value":343.3,"note":""},{"date":"2026-05-31","buyer":"YARA","type":"Supermercado","store":"","value":104.0,"note":""},{"date":"2026-05-28","buyer":"DITO","type":"Combustível","store":"","value":70.0,"note":""},{"date":"2026-05-28","buyer":"RODRIGO","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-05-28","buyer":"RODRIGO","type":"Supermercado","store":"","value":23.18,"note":""},{"date":"2026-05-28","buyer":"DITO","type":"Supermercado","store":"","value":9.34,"note":""},{"date":"2026-05-28","buyer":"DITO","type":"Supermercado","store":"","value":8.93,"note":""}]},"2026-07":{"accounts":{"Água":61,"Força":364.24,"Gás":130,"TV":125,"Internet":125.99,"Spotify":44},"purchases":[{"date":"2026-07-26","buyer":"YARA","type":"Supermercado","store":"","value":75.0,"note":""},{"date":"2026-07-26","buyer":"DITO","type":"Supermercado","store":"","value":30.15,"note":""},{"date":"2026-07-26","buyer":"RODRIGO","type":"Supermercado","store":"","value":6.59,"note":""},{"date":"2026-07-26","buyer":"DITO","type":"Supermercado","store":"","value":19.0,"note":""},{"date":"2026-07-26","buyer":"RODRIGO","type":"Supermercado","store":"","value":7.13,"note":""},{"date":"2026-07-26","buyer":"DITO","type":"Supermercado","store":"","value":20.72,"note":""},{"date":"2026-07-26","buyer":"DITO","type":"Supermercado","store":"","value":14.89,"note":""},{"date":"2026-07-26","buyer":"YARA","type":"Combustível","store":"","value":53.0,"note":""},{"date":"2026-07-25","buyer":"DITO","type":"Supermercado","store":"","value":55.0,"note":""},{"date":"2026-07-25","buyer":"YARA","type":"Supermercado","store":"","value":504.09,"note":""},{"date":"2026-07-25","buyer":"RODRIGO","type":"Combustível","store":"","value":38.0,"note":""},{"date":"2026-07-25","buyer":"YARA","type":"Combustível","store":"","value":70.0,"note":""},{"date":"2026-07-25","buyer":"RODRIGO","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-07-20","buyer":"DITO","type":"Supermercado","store":"","value":10.73,"note":""},{"date":"2026-07-20","buyer":"DITO","type":"Supermercado","store":"","value":25.6,"note":""},{"date":"2026-07-20","buyer":"DITO","type":"Supermercado","store":"","value":13.51,"note":""},{"date":"2026-07-20","buyer":"RODRIGO","type":"Supermercado","store":"","value":2.98,"note":""},{"date":"2026-07-20","buyer":"RODRIGO","type":"Supermercado","store":"","value":9.29,"note":""},{"date":"2026-07-20","buyer":"YARA","type":"Supermercado","store":"","value":109.99,"note":""},{"date":"2026-07-20","buyer":"YARA","type":"Supermercado","store":"","value":82.45,"note":""},{"date":"2026-07-20","buyer":"YARA","type":"Supermercado","store":"","value":39.41,"note":""},{"date":"2026-07-20","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":13.52,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":9.58,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Supermercado","store":"","value":26.0,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Supermercado","store":"","value":117.6,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":9.68,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":10.66,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Supermercado","store":"","value":139.31,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":13.11,"note":""},{"date":"2026-07-15","buyer":"DITO","type":"Supermercado","store":"","value":10.19,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Supermercado","store":"","value":56.06,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Combustível","store":"","value":88.0,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Combustível","store":"","value":78.0,"note":""},{"date":"2026-07-15","buyer":"YARA","type":"Supermercado","store":"","value":6.39,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":74.38,"note":""},{"date":"2026-07-09","buyer":"MAH","type":"Supermercado","store":"","value":563.0,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Supermercado","store":"","value":8.01,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Supermercado","store":"","value":7.61,"note":""},{"date":"2026-07-09","buyer":"RODRIGO","type":"Supermercado","store":"","value":8.99,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Supermercado","store":"","value":10.05,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":68.53,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":26.49,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":113.5,"note":""},{"date":"2026-07-09","buyer":"RODRIGO","type":"Supermercado","store":"","value":48.47,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Supermercado","store":"","value":9.71,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":8.0,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":113.7,"note":""},{"date":"2026-07-09","buyer":"YARA","type":"Supermercado","store":"","value":3.5,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Supermercado","store":"","value":10.0,"note":""},{"date":"2026-07-09","buyer":"DITO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-07-04","buyer":"DITO","type":"Supermercado","store":"","value":10.05,"note":""},{"date":"2026-07-03","buyer":"YARA","type":"Supermercado","store":"","value":201.97,"note":""},{"date":"2026-07-03","buyer":"YARA","type":"Supermercado","store":"","value":66.96,"note":""},{"date":"2026-07-03","buyer":"DITO","type":"Supermercado","store":"","value":8.29,"note":""},{"date":"2026-07-03","buyer":"RODRIGO","type":"Combustível","store":"","value":15.0,"note":""},{"date":"2026-07-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":15.98,"note":""},{"date":"2026-07-03","buyer":"YARA","type":"Supermercado","store":"","value":114.02,"note":""},{"date":"2026-07-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":10.09,"note":""},{"date":"2026-07-03","buyer":"YARA","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-07-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":21.97,"note":""},{"date":"2026-07-03","buyer":"DITO","type":"Supermercado","store":"","value":7.47,"note":""},{"date":"2026-07-03","buyer":"YARA","type":"Supermercado","store":"","value":11.98,"note":""},{"date":"2026-07-03","buyer":"DITO","type":"Supermercado","store":"","value":7.56,"note":""},{"date":"2026-07-01","buyer":"RODRIGO","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-07-01","buyer":"DITO","type":"Supermercado","store":"","value":17.3,"note":""},{"date":"2026-06-29","buyer":"YARA","type":"Supermercado","store":"","value":120.59,"note":""},{"date":"2026-06-29","buyer":"YARA","type":"Supermercado","store":"","value":5.99,"note":""},{"date":"2026-06-29","buyer":"DITO","type":"Supermercado","store":"","value":8.66,"note":""},{"date":"2026-06-28","buyer":"YARA","type":"Supermercado","store":"","value":262.0,"note":""},{"date":"2026-06-28","buyer":"YARA","type":"Supermercado","store":"","value":48.26,"note":""},{"date":"2026-06-27","buyer":"DITO","type":"Supermercado","store":"","value":11.0,"note":""},{"date":"2026-06-27","buyer":"DITO","type":"Supermercado","store":"","value":7.68,"note":""},{"date":"2026-06-27","buyer":"RODRIGO","type":"Supermercado","store":"","value":7.71,"note":""}]},"2026-08":{"accounts":{"Água":170.32,"Força":548,"Gás":130,"TV":125,"Internet":126,"Spotify":44},"purchases":[{"date":"2026-08-22","buyer":"RODRIGO","type":"Supermercado","store":"","value":48.36,"note":""},{"date":"2026-08-21","buyer":"YARA","type":"Supermercado","store":"","value":78.27,"note":""},{"date":"2026-08-21","buyer":"MAH","type":"Supermercado","store":"","value":39.3,"note":""},{"date":"2026-08-21","buyer":"DITO","type":"Supermercado","store":"","value":9.07,"note":""},{"date":"2026-08-21","buyer":"RODRIGO","type":"Supermercado","store":"","value":21.9,"note":""},{"date":"2026-08-21","buyer":"YARA","type":"Supermercado","store":"","value":123.0,"note":""},{"date":"2026-08-21","buyer":"YARA","type":"Combustível","store":"","value":110.0,"note":""},{"date":"2026-08-20","buyer":"RODRIGO","type":"Supermercado","store":"","value":20.66,"note":""},{"date":"2026-08-20","buyer":"DITO","type":"Supermercado","store":"","value":9.58,"note":""},{"date":"2026-08-19","buyer":"RODRIGO","type":"Combustível","store":"","value":80.0,"note":""},{"date":"2026-08-19","buyer":"RODRIGO","type":"Supermercado","store":"","value":7.0,"note":""},{"date":"2026-08-19","buyer":"DITO","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-08-19","buyer":"DITO","type":"Supermercado","store":"","value":5.07,"note":""},{"date":"2026-08-19","buyer":"DITO","type":"Supermercado","store":"","value":11.48,"note":""},{"date":"2026-08-19","buyer":"DITO","type":"Supermercado","store":"","value":13.65,"note":""},{"date":"2026-08-19","buyer":"YARA","type":"Supermercado","store":"","value":84.98,"note":""},{"date":"2026-08-19","buyer":"YARA","type":"Supermercado","store":"","value":159.97,"note":""},{"date":"2026-08-14","buyer":"RODRIGO","type":"Supermercado","store":"","value":35.97,"note":""},{"date":"2026-08-14","buyer":"DITO","type":"Supermercado","store":"","value":61.0,"note":""},{"date":"2026-08-14","buyer":"YARA","type":"Supermercado","store":"","value":34.0,"note":""},{"date":"2026-08-14","buyer":"RODRIGO","type":"Supermercado","store":"","value":17.8,"note":""},{"date":"2026-08-14","buyer":"YARA","type":"Supermercado","store":"","value":8.47,"note":""},{"date":"2026-08-14","buyer":"YARA","type":"Supermercado","store":"","value":8.47,"note":""},{"date":"2026-08-14","buyer":"YARA","type":"Supermercado","store":"","value":8.5,"note":""},{"date":"2026-08-11","buyer":"YARA","type":"Supermercado","store":"","value":40.0,"note":""},{"date":"2026-08-11","buyer":"YARA","type":"Supermercado","store":"","value":318.17,"note":""},{"date":"2026-08-09","buyer":"RODRIGO","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-08-09","buyer":"JOÃO","type":"Supermercado","store":"","value":50.0,"note":""},{"date":"2026-08-09","buyer":"DITO","type":"Supermercado","store":"","value":7.39,"note":""},{"date":"2026-08-09","buyer":"DITO","type":"Supermercado","store":"","value":10.15,"note":""},{"date":"2026-08-09","buyer":"DITO","type":"Supermercado","store":"","value":11.69,"note":""},{"date":"2026-08-09","buyer":"DITO","type":"Supermercado","store":"","value":8.53,"note":""},{"date":"2026-08-07","buyer":"MAH","type":"Supermercado","store":"","value":563.0,"note":""},{"date":"2026-08-07","buyer":"YARA","type":"Combustível","store":"","value":50.0,"note":""},{"date":"2026-08-07","buyer":"YARA","type":"Supermercado","store":"","value":71.08,"note":""},{"date":"2026-08-07","buyer":"YARA","type":"Supermercado","store":"","value":91.54,"note":""},{"date":"2026-08-07","buyer":"YARA","type":"Supermercado","store":"","value":261.98,"note":""},{"date":"2026-08-07","buyer":"YARA","type":"Combustível","store":"","value":100.0,"note":""},{"date":"2026-08-07","buyer":"DITO","type":"Supermercado","store":"","value":9.35,"note":""},{"date":"2026-08-04","buyer":"YARA","type":"Supermercado","store":"","value":9.79,"note":""},{"date":"2026-08-04","buyer":"DITO","type":"Supermercado","store":"","value":19.69,"note":""},{"date":"2026-08-03","buyer":"RODRIGO","type":"Supermercado","store":"","value":61.83,"note":""},{"date":"2026-08-03","buyer":"YARA","type":"Supermercado","store":"","value":47.0,"note":""},{"date":"2026-08-03","buyer":"DITO","type":"Supermercado","store":"","value":10.76,"note":""},{"date":"2026-08-02","buyer":"MAH","type":"Supermercado","store":"","value":52.0,"note":""},{"date":"2026-08-02","buyer":"YARA","type":"Combustível","store":"","value":119.0,"note":""},{"date":"2026-08-02","buyer":"DITO","type":"Supermercado","store":"","value":10.51,"note":""},{"date":"2026-08-02","buyer":"JOÃO","type":"Supermercado","store":"","value":15.68,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":41.9,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":45.9,"note":""},{"date":"2026-08-01","buyer":"DITO","type":"Supermercado","store":"","value":15.0,"note":""},{"date":"2026-08-01","buyer":"DITO","type":"Supermercado","store":"","value":8.42,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":21.6,"note":""},{"date":"2026-08-01","buyer":"RODRIGO","type":"Combustível","store":"","value":93.6,"note":""},{"date":"2026-08-01","buyer":"RODRIGO","type":"Supermercado","store":"","value":29.0,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":31.9,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":200.67,"note":""},{"date":"2026-08-01","buyer":"YARA","type":"Supermercado","store":"","value":19.0,"note":""},{"date":"2026-07-30","buyer":"DITO","type":"Supermercado","store":"","value":8.53,"note":""},{"date":"2026-07-30","buyer":"YARA","type":"Supermercado","store":"","value":184.61,"note":""},{"date":"2026-07-29","buyer":"YARA","type":"Supermercado","store":"","value":176.6,"note":""},{"date":"2026-07-29","buyer":"DITO","type":"Supermercado","store":"","value":8.56,"note":""},{"date":"2026-07-29","buyer":"YARA","type":"Supermercado","store":"","value":56.16,"note":""},{"date":"2026-07-28","buyer":"DITO","type":"Supermercado","store":"","value":9.75,"note":""},{"date":"2026-07-27","buyer":"DITO","type":"Supermercado","store":"","value":8.17,"note":""}]}};
+if(!db.months || Object.keys(db.months).length===0){
+ db.months=clone(IMPORTED_2026);
+ db.people=['RODRIGO','YARA','MAH','JOÃO','DITO'];
+ db.importedHistory2026=true;
+ save();
+}
+
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));let d=x?{...clone(DEFAULT),...x,months:x.months||{}}:clone(DEFAULT);d.password='1234';return d}catch(e){let d=clone(DEFAULT);d.password='1234';return d}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+if(typeof db.deleteEnabled!=='boolean')db.deleteEnabled=false;
+if(typeof db.fixedSecurityLock!=='boolean')db.fixedSecurityLock=true;
+if(typeof db.mgmtRef!=='number')db.mgmtRef=3;
+if(typeof db.mgmtTol!=='number')db.mgmtTol=5;
+if(typeof db.importPreviousEnabled!=='boolean')db.importPreviousEnabled=true;
+function fixedLockState(m){
+  if(Array.isArray(db.fixedUnlockedMonths)&&db.fixedUnlockedMonths.includes(m))return {locked:false,reason:'Mês desbloqueado pelo administrador.'};
+  if(!db.fixedSecurityLock)return {locked:false,reason:'Trava desativada'};
+  const cur=fmonth(new Date());
+  if(m<cur)return {locked:true,reason:'Mês encerrado: somente consulta.'};
+  if(m===cur)return {locked:false,reason:'Mês atual liberado.'};
+  const d=new Date(cur+'-01T12:00:00'); d.setMonth(d.getMonth()+1);
+  const next=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  if(m!==next)return {locked:true,reason:'Somente o próximo mês pode ser preparado.'};
+  const now=new Date(), last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  return now.getDate()>=last-9 ? {locked:false,reason:'Próximo mês liberado nos últimos 10 dias.'} :
+    {locked:true,reason:'O próximo mês só pode ser preenchido nos últimos 10 dias do mês atual.'};
+}
+function fixedEditAllowed(m){return !fixedLockState(m).locked}
+function fixedValuesLocked(m){
+  if(!db.fixedValueLock)return false;
+  if(db.fixedUnlockedMonths.includes(m))return false;
+  const d=db.months[m];
+  return !!(d&&d.fixedSaved);
+}
+
+function money(x){return (Number(x)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function esc(x){return String(x??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function monthName(m){let [y,mo]=m.split('-');return new Date(+y,+mo-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())}
+function fmonth(date){let d=date instanceof Date?date:new Date(date),y=d.getFullYear(),m=d.getMonth()+1;if(d.getDate()>db.closeDay){m++;if(m===13){m=1;y++}}return y+'-'+String(m).padStart(2,'0')}
+function period(m){let [y,mo]=m.split('-').map(Number),end=new Date(y,mo-1,db.closeDay),start=new Date(end);start.setMonth(start.getMonth()-1);start.setDate(db.closeDay+1);return start.toLocaleDateString('pt-BR')+' → '+end.toLocaleDateString('pt-BR')}
+function ensure(m){if(!db.months[m])db.months[m]={accounts:{},purchases:[]};db.accounts.forEach(a=>{if(!db.months[m].accounts[a])db.months[m].accounts[a]=0});if(!Array.isArray(db.months[m].purchases))db.months[m].purchases=[];db.months[m].fixedMeta=db.months[m].fixedMeta||{};return db.months[m]}
+
+function todayBR(){
+  const d=new Date();
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function current(){return document.getElementById('fixedPeriod').value||fmonth(new Date())}
+function openTab(id){document.body.classList.toggle('home-view',id==='home');document.querySelectorAll('nav').forEach(n=>n.style.display=id==='home'?'none':'');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));refreshAll()}
+function openHistoryFromHome(){openTab('gestao');setMgmt('history')}
+function openConfig(){document.getElementById('pass').value='';document.getElementById('modal').style.display='flex'}
+function closeModal(){document.getElementById('modal').style.display='none'}
+function unlock(){if(document.getElementById('pass').value===db.password){closeModal();openTab('config')}else alert('Senha incorreta.')}
+function refreshAll(){let m=current();ensure(m);document.getElementById('fixedPeriod').value=m;document.getElementById('headerPeriod').textContent='Hoje: '+todayBR();if(document.getElementById('homePeriod')){document.getElementById('homePeriod').textContent=monthName(m);document.getElementById('homeRange').textContent=period(m)}if(!document.getElementById('sumPeriod').value)document.getElementById('sumPeriod').value=m;renderFixed();renderBuyers();renderBuyList();renderSummary();renderConfig();showBuyPeriod();if(document.getElementById('gestao').classList.contains('active'))renderMgmt()}
+function fixedMeta(m,a){const d=ensure(m);d.fixedMeta[a]=d.fixedMeta[a]||{paid:false,dueDate:"",paidDate:"",proofLink:""};return d.fixedMeta[a]}
+function fixedMgmtStatus(m,a){const x=fixedMeta(m,a);if(x.paid)return "paid";if(x.dueDate&&x.dueDate<new Date().toISOString().slice(0,10))return "overdue";return "open"}
+function fixedMgmtStatusLabel(s){return s==="paid"?"🟢 Paga":s==="overdue"?"🔴 Vencida":"🟡 Em aberto"}
+function setFixedSub(s){renderFixedManagement()}
+function renderFixedManagement(){
+ const m=document.getElementById("fixedMgmtPeriod").value||current(),status=document.getElementById("fixedMgmtStatus").value,account=document.getElementById("fixedMgmtAccount").value,d=ensure(m);
+ document.getElementById("fixedMgmtAccount").innerHTML='<option value="">Todas</option>'+db.accounts.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');document.getElementById("fixedMgmtAccount").value=account;
+ const all=db.accounts.map(a=>({a,v:+d.accounts[a]||0,s:fixedMgmtStatus(m,a),x:fixedMeta(m,a)})),filtered=all.filter(x=>(!status||x.s===status)&&(!account||x.a===account));
+ const total=all.reduce((s,x)=>s+x.v,0),paid=all.filter(x=>x.s==="paid").reduce((s,x)=>s+x.v,0),open=all.filter(x=>x.s==="open").reduce((s,x)=>s+x.v,0),overdue=all.filter(x=>x.s==="overdue").reduce((s,x)=>s+x.v,0);
+ let h=`<div class="fixed-mgmt-kpis"><div class="fixed-mgmt-kpi">💰 Total de contas<b>${money(total)}</b></div><div class="fixed-mgmt-kpi">✅ Contas pagas<b>${money(paid)}</b></div><div class="fixed-mgmt-kpi">🟡 Em aberto<b>${money(open)}</b></div><div class="fixed-mgmt-kpi">🔴 Vencidas<b>${money(overdue)}</b></div></div>`;
+ filtered.forEach(x=>{const due=x.x.dueDate?new Date(x.x.dueDate+"T12:00:00").toLocaleDateString("pt-BR"):"Não informado",paidOn=x.x.paidDate?new Date(x.x.paidDate+"T12:00:00").toLocaleDateString("pt-BR"):"Ainda não pago",proof=x.x.proofLink?`<a href="${esc(x.x.proofLink)}" target="_blank" rel="noopener">🔗 Abrir comprovante</a>`:"Não anexado";h+=`<details class="fixed-mgmt-card"><summary><div><div class="account-title">${esc(x.a)}</div><div class="account-preview">${money(x.v)} · Vencimento: ${esc(due)}</div></div><div class="status">${fixedMgmtStatusLabel(x.s)}</div></summary><div class="fixed-mgmt-details"><div class="line">💰 <b>Valor:</b> ${money(x.v)}</div><div class="line">📅 <b>Vencimento:</b> ${esc(due)}</div><div class="line">📌 <b>Situação:</b> ${fixedMgmtStatusLabel(x.s)}</div><div class="line">💵 <b>Pago em:</b> ${esc(paidOn)}</div><div class="line">📎 <b>Comprovante:</b> ${proof}</div><div class="actions">${x.s==="paid"?`<button class="btn secondary" onclick="fixedMarkUnpaid('${esc(x.a)}')">↩️ Marcar como não paga</button>`:`<button class="btn secondary" onclick="fixedMarkPaid('${esc(x.a)}')">💰 Marcar como paga</button>`}<button class="btn secondary" onclick="fixedEditInfo('${esc(x.a)}')">✏️ Informar vencimento / comprovante</button></div></div></details>`});
+ document.getElementById("fixedMgmtContent").innerHTML=h;
+}
+function fixedMarkPaid(a){const m=document.getElementById("fixedMgmtPeriod").value||current(),x=fixedMeta(m,a);x.paid=true;x.paidDate=new Date().toISOString().slice(0,10);save();renderFixedManagement()}
+function fixedMarkUnpaid(a){const m=document.getElementById("fixedMgmtPeriod").value||current(),x=fixedMeta(m,a);x.paid=false;x.paidDate="";save();renderFixedManagement()}
+function fixedEditInfo(a){const m=document.getElementById("fixedMgmtPeriod").value||current(),x=fixedMeta(m,a),due=prompt("Vencimento (AAAA-MM-DD). Deixe vazio se não informado.",x.dueDate||"");if(due===null)return;const link=prompt("Cole o link do comprovante de pagamento (opcional).",x.proofLink||"");if(link===null)return;x.dueDate=due.trim();x.proofLink=link.trim();save();renderFixedManagement()}
+function renderFixed(){
+  const m=current(),d=ensure(m),state=fixedLockState(m);let total=0;
+  document.getElementById('fixedLockBanner').innerHTML=state.locked?`<div class="fixed-lock-banner warn">🔒 ${esc(state.reason)}</div>`:`<div class="fixed-lock-banner">🔓 ${esc(state.reason)}</div>`;
+  document.getElementById('fixedList').innerHTML=db.accounts.map(a=>{let v=+d.accounts[a]||0;total+=v;return `<div class="row"><span>${esc(a)}</span><input data-fixed="${esc(a)}" style="max-width:150px" type="number" step="0.01" value="${v||''}" ${(state.locked||fixedValuesLocked(m))?'disabled':''}></div>`}).join('');
+  document.getElementById('fixedTotal').textContent=money(total);
+  document.getElementById('saveFixedBtn').disabled=state.locked;
+  document.getElementById('importPrevBtn').disabled=state.locked||!db.importPreviousEnabled;
+  document.getElementById('familyChoices').innerHTML=db.families.map((f,i)=>`<button class="btn choice ${i===familySel?'selected':'secondary'}" onclick="selectFamily(${i})">${esc(f.name)}${i===familySel?' ✓':''}</button>`).join('');
+  let f=db.families[familySel]||db.families[0],v=total*(+f.pct||0)/100;
+  document.getElementById('familyResult').innerHTML=`<div class="row"><span>Valor da ${esc(f.name)}</span><b>${money(v)}</b></div><div class="actions"><button class="btn" onclick="sendWA(${familySel})">📲 WhatsApp</button></div>`;
+}
+function saveFixed(){
+  const m=current();
+  if(!fixedEditAllowed(m))return alert('🔒 '+fixedLockState(m).reason);
+  let d=ensure(m);
+  db.accounts.forEach(a=>{let el=document.querySelector(`[data-fixed="${CSS.escape(a)}"]`);if(el)d.accounts[a]=+el.value||0});
+  d.fixedSaved=true;save();renderFixed();renderMgmt();alert('Contas fixas salvas. Os valores deste mês ficaram bloqueados. Para alterar, desbloqueie o mês em Configurações com a senha do ADM.');
+}
+function toggleImportPrevious(){
+  const box=document.getElementById('importPreviousBox');
+  if(box.style.display!=='none'){box.style.display='none';return}
+  const m=current(),state=fixedLockState(m);
+  if(state.locked)return alert('🔒 '+state.reason);
+  const d=new Date(m+'-01T12:00:00');d.setMonth(d.getMonth()-1);
+  const prev=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),pd=ensure(prev);
+  box.style.display='block';
+  box.innerHTML=`<b>Importar de ${monthName(prev)}</b><p class="muted">Marque somente as contas que deseja copiar. Os demais valores não serão alterados.</p>`+
+    db.accounts.map((a,i)=>`<label class="import-check"><input type="checkbox" id="imp${i}" value="${esc(a)}" checked> ${esc(a)} — ${money(pd.accounts[a]||0)}</label>`).join('')+
+    `<div class="actions"><button class="btn" onclick="importSelectedPrevious('${m}','${prev}')">Importar selecionadas</button></div>`;
+}
+function importSelectedPrevious(m,prev){
+  if(!fixedEditAllowed(m))return alert('🔒 '+fixedLockState(m).reason);
+  const pd=ensure(prev),d=ensure(m),sel=db.accounts.filter((a,i)=>document.getElementById('imp'+i)?.checked);
+  if(!sel.length)return alert('Selecione pelo menos uma conta.');
+  if(!confirm('Importar '+sel.length+' conta(s) do mês anterior?'))return;
+  sel.forEach(a=>d.accounts[a]=+pd.accounts[a]||0);d.fixedSaved=true;save();document.getElementById('importPreviousBox').style.display='none';renderFixed();renderMgmt();alert('Valores importados com sucesso.');
+}
+
+function selectFamily(i){familySel=i;renderFixed()}
+function renderBuyers(sel){let cur=sel!==undefined?sel:document.getElementById('buyer').value;document.getElementById('buyerChoices').innerHTML=db.people.map((p,i)=>`<button class="btn choice ${p===cur?'selected':'secondary'}" onclick="selectBuyer(${i})">${esc(p)}${p===cur?' ✓':''}</button>`).join('');document.getElementById('buyer').value=db.people.includes(cur)?cur:''}
+function selectBuyer(i){document.getElementById('buyer').value=db.people[i];renderBuyers(db.people[i])}
+function showBuyPeriod(){let d=document.getElementById('buyDate').value;if(!d)return;let m=db.auto?fmonth(new Date(d+'T12:00:00')):current();document.getElementById('buyPeriod').textContent='Período: '+monthName(m)+' • '+period(m)}
+function clearBuy(){
+ edit=null;
+ document.getElementById('buyDate').value=new Date().toISOString().slice(0,10);
+ document.getElementById('buyType').value='Supermercado';
+ document.getElementById('buyStore').value='';
+ document.getElementById('buyValue').value='';
+ document.getElementById('buyNote').value='';
+ document.getElementById('buySave').textContent='Salvar compra';
+ document.getElementById('buyer').value='';
+ renderBuyers('');
+ showBuyPeriod();
+}
+function toggleOtherPurchaseField(){
+ const isOther=document.getElementById('buyType')?.value==='Outros';
+ const field=document.getElementById('otherPurchaseField');
+ if(field)field.style.display=isOther?'block':'none';
+ if(!isOther && document.getElementById('buyOtherDetail'))document.getElementById('buyOtherDetail').value='';
+}
+function saveBuy(){
+ const btn=document.getElementById('buySave');
+ if(btn.disabled)return;
+ let date=document.getElementById('buyDate').value,b=document.getElementById('buyer').value,type=document.getElementById('buyType').value,store=document.getElementById('buyStore').value.trim(),value=+document.getElementById('buyValue').value||0,note=document.getElementById('buyNote').value.trim();
+ if(!date)return alert('Informe a data.');
+ if(!b)return alert('Selecione quem realizou.');
+ if(!value)return alert('Informe o valor.');
+ let m=db.auto?fmonth(new Date(date+'T12:00:00')):current(),d=ensure(m),wasEdit=(edit!==null),item={date,buyer:b,type,store,value,note,otherDetail:type==='Outros'?(document.getElementById('buyOtherDetail')?.value.trim()||''):''};
+ let msg=`Período: ${monthName(m)} (${period(m)})\nData: ${date}\nTipo: ${type}\nQuem: ${b}\nEstabelecimento: ${store||'—'}\nValor: ${money(value)}\nObservação: ${note||'—'}\n\nAs informações estão corretas?`;
+ if(!confirm(msg))return;
+ btn.disabled=true;
+ try{
+   if(!wasEdit)d.purchases.push(item);else d.purchases[edit]=item;
+   save();
+   document.getElementById('fixedPeriod').value=m;
+   renderBuyList();
+   clearBuy();
+   alert(wasEdit?'Compra alterada com sucesso.':'Compra salva com sucesso.');
+ }finally{btn.disabled=false}
+}
+function cleanDuplicates(){
+ const removed=removeExactDuplicatePurchases();
+ alert(removed?`Foram removidos ${removed} registros duplicados idênticos.`:'Não foram encontrados registros duplicados idênticos.');
+}
+
+function editBuy(m,i){let p=ensure(m).purchases[i];if(!p)return;edit=i;document.getElementById('fixedPeriod').value=m;document.getElementById('buyDate').value=p.date;document.getElementById('buyType').value=p.type;document.getElementById('buyStore').value=p.store||'';document.getElementById('buyValue').value=p.value;document.getElementById('buyNote').value=p.note||'';renderBuyers(p.buyer);document.getElementById('buySave').textContent='Salvar alteração';showBuyPeriod()}
+function renderBuyList(){
+ const m=document.getElementById('buyListPeriod')?.value||current();
+ const type=document.getElementById('buyListType')?.value||'';
+ const d=ensure(m);
+ const items=d.purchases.map((p,i)=>({...p,_i:i,__month:m}))
+   .filter(p=>!type||p.type===type)
+   .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||a._i-b._i);
+ const total=items.reduce((sum,p)=>sum+Number(p.value||0),0);
+ const editDelete=p=>`<div class="purchase-history-actions">
+   <button class="btn secondary" style="width:100%" onclick="editBuy('${m}',${p._i})">✏️ Editar</button>
+   ${db.deleteEnabled?`<button class="btn danger" style="width:100%;margin-top:7px" onclick="deleteBuy('${m}',${p._i})">🗑️ Excluir</button>`:''}
+ </div>`;
+ const cards=items.map(p=>`<details class="purchase-history-card">
+   <summary>
+     <span>
+       <b>${esc(p.type)}${p.type==='Outros'&&p.otherDetail?` · ${esc(p.otherDetail)}`:''}</b>
+       <small>${new Date(p.date+'T12:00:00').toLocaleDateString('pt-BR')} · ${esc(p.buyer)}</small>
+     </span>
+     <strong>${money(p.value)}</strong>
+   </summary>
+   <div class="purchase-history-details">
+     <div><span>Período</span><b>${monthName(m)}</b></div>
+     <div><span>Data</span><b>${new Date(p.date+'T12:00:00').toLocaleDateString('pt-BR')}</b></div>
+     <div><span>Tipo</span><b>${esc(p.type)}</b></div>
+     ${p.type==='Outros'&&p.otherDetail?`<div><span>O que foi?</span><b>${esc(p.otherDetail)}</b></div>`:''}
+     <div><span>Quem</span><b>${esc(p.buyer)}</b></div>
+     <div><span>Local</span><b>${esc(p.store||'—')}</b></div>
+     <div><span>Valor</span><b>${money(p.value)}</b></div>
+     ${p.note?`<div><span>Observação</span><b>${esc(p.note)}</b></div>`:''}
+     ${editDelete(p)}
+   </div>
+ </details>`).join('');
+ document.getElementById('buyList').innerHTML=
+   `<div class="row"><span>Período consultado</span><b>${monthName(m)}</b></div>
+    <div class="row total"><b>Total</b><b>${money(total)}</b></div>`+
+   (items.length?`<div class="purchase-history-cards">${cards}</div>`:'<div class="empty">Nenhuma compra neste período.</div>');
+}
+function removeExactDuplicatePurchases(){
+ let removed=0;
+ Object.values(db.months).forEach(d=>{
+   if(!Array.isArray(d.purchases))return;
+   const seen=new Set();
+   d.purchases=d.purchases.filter(p=>{
+     const key=[p.date,p.buyer,p.type,p.store||'',Number(p.value)||0,p.note||''].join('|');
+     if(seen.has(key)){removed++;return false}
+     seen.add(key);return true;
+   });
+ });
+ if(removed){save();renderBuyList();}
+ return removed;
+}
+
+function deleteBuy(m,i){
+ const d=ensure(m),p=d.purchases[i];
+ if(!db.deleteEnabled)return alert('A exclusão está desabilitada. Vá em Configurações e habilite "Exclusão de registros".');
+ if(!p)return;
+ if(!confirm(`Excluir este registro?\n\n${p.date} • ${p.type}\n${p.buyer} • ${money(p.value)}\n\nEsta ação não pode ser desfeita.`))return;
+ d.purchases.splice(i,1);save();renderBuyList();alert('Registro excluído.');
+}
+
+function cleanupAug22_23Duplicates(){
+ let removed=0;
+ Object.values(db.months).forEach(d=>{
+   if(!Array.isArray(d.purchases))return;
+   const seen={};
+   d.purchases=d.purchases.filter(p=>{
+     if(p.date!=='2026-08-22' && p.date!=='2026-08-23')return true;
+     const key=[p.date,p.type,Number(p.value)||0].join('|');
+     if(seen[key]){removed++;return false}
+     seen[key]=true;return true;
+   });
+ });
+ if(removed)save();
+ return removed;
+}
+
+function row(m){let d=ensure(m),fixed=Object.values(d.accounts).reduce((s,v)=>s+ +v,0),shop=d.purchases.filter(p=>p.type==='Supermercado').reduce((s,p)=>s+Number(p.value||0),0),fuel=d.purchases.filter(p=>p.type==='Combustível').reduce((s,p)=>s+Number(p.value||0),0),other=d.purchases.filter(p=>p.type==='Outros').reduce((s,p)=>s+Number(p.value||0),0);return {month:m,fixed,shop,fuel,other,total:fixed+shop+fuel+other}}
+function renderSummary(){let m=document.getElementById('sumPeriod').value||current(),mode=document.getElementById('sumMode').value,months=mode==='month'?[m]:Object.keys(db.months).filter(x=>x.startsWith(m.slice(0,4))).sort(),rs=months.map(row);document.getElementById('summary').innerHTML=rs.map((r)=>`<div class="card"><div class="muted">${mode==='month'?monthName(r.month)+' • '+period(r.month):monthName(r.month)+' • '+r.month.slice(0,4)}</div><div class="row"><span>🏠 Fixas</span><b>${money(r.fixed)}</b></div><div class="row"><span>🛒 Supermercado</span><b>${money(r.shop)}</b></div><div class="row"><span>⛽ Combustível</span><b>${money(r.fuel)}</b></div><div class="row"><span>📦 Outros</span><b>${money(r.other)}</b></div><div class="row total"><b>Total</b><b>${money(r.total)}</b></div></div>`).join('')||'<div class="empty">Sem dados.</div>';renderPersonSpend()}
+function changeSpendMode(){let mode=document.getElementById('spMode').value;document.getElementById('spPeriodBox').innerHTML=mode==='month'?'<label>Mês</label><input id="spMonth" type="month" onchange="renderPersonSpend()">':'<label>Ano</label><input id="spYear" type="number" min="2020" max="2100" onchange="renderPersonSpend()">';if(mode==='month')document.getElementById('spMonth').value=current();else document.getElementById('spYear').value=new Date().getFullYear();renderPersonSpend()}
+function renderPersonSpend(){let mode=document.getElementById('spMode').value,type=document.getElementById('spType').value,period=mode==='month'?(document.getElementById('spMonth')?.value||current()):String(document.getElementById('spYear')?.value||new Date().getFullYear()),sel=document.getElementById('spPerson'),old=sel.value;sel.innerHTML='<option value="">Todos</option>'+db.people.map(p=>`<option>${esc(p)}</option>`).join('');if(db.people.includes(old))sel.value=old;let person=sel.value,months=mode==='month'?[period]:Object.keys(db.months).filter(x=>x.startsWith(period)),arr=[];months.forEach(m=>arr=arr.concat(ensure(m).purchases.filter(p=>p.type===type&&(!person||p.buyer===person))));let total=arr.reduce((s,p)=>s+p.value,0),by={};arr.forEach(p=>by[p.buyer]=(by[p.buyer]||0)+p.value);document.getElementById('personSpend').innerHTML=(Object.entries(by).map(([p,v])=>`<div class="row"><span>${esc(p)}</span><b>${money(v)}</b></div>`).join('')||'<div class="empty">Sem registros.</div>')+`<div class="row total"><b>Total ${type}</b><b>${money(total)}</b></div>`}
+function last6(m){let [y,mo]=m.split('-').map(Number),a=[];for(let i=5;i>=0;i--){let d=new Date(y,mo-1-i,1);a.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))}return a}
+function avg(k,ms){return ms.reduce((s,m)=>s+row(m)[k],0)/6}
+function status(v,a){let d=a?((v-a)/a*100):0;return d<-5?['🟢','ECONOMIZANDO']:d<=5?['🟡','DENTRO DA MÉDIA']:['🔴','ACIMA DA MÉDIA']}
+function setPeopleMgmtPeriod(v){peopleMgmtPeriod=v||current();renderMgmt()}
+function setMgmtAccountsYear(v){db.mgmtAccountsYear=Number(v)||Number(current().split('-')[0]);save();renderMgmt()}
+function setMgmtOverviewMode(v){db.mgmtOverviewMode=v==='year'?'year':'last12';save();renderMgmt()}
+function setMgmtOverviewYear(v){db.mgmtOverviewYear=Number(v)||Number(current().split('-')[0]);save();renderMgmt()}
+function setMgmt(s){mgmtSel=s;document.querySelectorAll('#gestao .subnav button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));renderMgmt()}
+function mgmtPeriodsBefore(m,n){let [y,mo]=m.split('-').map(Number),a=[];for(let i=n;i>=1;i--){let d=new Date(y,mo-1-i,1);a.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))}return a}
+function mgmtHealth(m,n,tol){
+  const periods=mgmtPeriodsBefore(m,n),available=periods.filter(x=>db.months[x]);
+  const cur=row(m),avg=available.length?available.reduce((s,x)=>s+row(x).total,0)/available.length:0;
+  const delta=avg?((cur.total-avg)/avg*100):0;
+  let state=available.length<n?'HISTÓRICO INCOMPLETO':delta>tol?'PREJUDICADA':delta< -tol?'ECONOMIZANDO':'ESTÁVEL';
+  let angle=delta>tol?45:delta< -tol?-45:0;
+  if(!available.length)angle=0;
+  return {periods,available,cur,avg,delta,state,angle};
+}
+function renderMgmt(){
+  const m=current(),sub=mgmtSel;
+  let h='';
+  if(sub==='overview'){
+    const base=current();
+    const currentYear=Number(base.split('-')[0]);
+    const savedYear=Number(db.mgmtOverviewYear||currentYear);
+    const selectedYear=(savedYear>=2000&&savedYear<=2100)?savedYear:currentYear;
+    const years=new Set([currentYear,selectedYear]);
+    Object.keys(db.months||{}).forEach(k=>years.add(Number(k.split('-')[0])));
+    const yearOptions=[...years].filter(y=>y>=2000&&y<=2100).sort((a,b)=>b-a);
+
+    // The default view is always the last 12 completed/current financial months.
+    const last12=[];
+    for(let i=11;i>=0;i--){
+      const d=new Date(Number(base.split('-')[0]),Number(base.split('-')[1])-1-i,1);
+      last12.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+    }
+
+    h+='<h3>📊 Visão Geral</h3>';
+    h+=`<div class="overview-period-filter">
+      <div><label>Período principal</label><select id="mgmtOverviewMode" onchange="setMgmtOverviewMode(this.value)">
+        <option value="last12" ${db.mgmtOverviewMode!=='year'?'selected':''}>Últimos 12 meses</option>
+        <option value="year" ${db.mgmtOverviewMode==='year'?'selected':''}>Ano</option>
+      </select></div>
+      <div id="mgmtOverviewYearBox" style="${db.mgmtOverviewMode==='year'?'':'display:none'}">
+        <label>Ano</label><select id="mgmtOverviewYear" onchange="setMgmtOverviewYear(this.value)">`;
+    yearOptions.forEach(y=>h+=`<option value="${y}" ${y===selectedYear?'selected':''}>${y}</option>`);
+    h+=`</select></div></div>`;
+
+    const overviewPeriods=db.mgmtOverviewMode==='year'
+      ? Array.from({length:12},(_,i)=>`${selectedYear}-${String(i+1).padStart(2,'0')}`)
+      : last12;
+
+    const rows=overviewPeriods.map(x=>row(x));
+    const cur=row(base);
+    const available=overviewPeriods.filter(x=>db.months[x]);
+    const avgTotal=available.length?available.reduce((s,x)=>s+row(x).total,0)/available.length:0;
+
+    const total=cur.total||1;
+    const fix=cur.fixed||0,shop=cur.shop||0,fuel=cur.fuel||0,other=Math.max(0,total-fix-shop-fuel);
+    const p1=fix/total*100,p2=(fix+shop)/total*100,p3=(fix+shop+fuel)/total*100;
+    h+=`<div class="chart-card"><h3>🍩 Distribuição dos gastos — ${monthName(base)}</h3>
+      <div class="donut-wrap"><div class="donut" style="background:conic-gradient(#2878b9 0 ${p1}%,#2d9a52 ${p1}% ${p2}%,#d99a12 ${p2}% ${p3}%,#b9573f ${p3}% 100%)"></div>
+      <div class="legend"><div><i style="background:#2878b9"></i>Fixas ${money(fix)}</div><div><i style="background:#2d9a52"></i>Supermercado ${money(shop)}</div><div><i style="background:#d99a12"></i>Combustível ${money(fuel)}</div><div><i style="background:#b9573f"></i>Outros ${money(other)}</div></div></div></div>`;
+
+    h+=`<div class="chart-card"><h3>📊 Gastos por período</h3><p class="muted">${db.mgmtOverviewMode==='year'?'Ano '+selectedYear:'Últimos 12 meses'}. Meses sem registros também são exibidos.</p>`;
+    const max=Math.max(...rows.map(x=>x.total),1);
+    overviewPeriods.forEach(x=>h+=`<div class="bar-row"><span>${monthName(x).split(' ')[0]}</span><div class="bar"><i style="width:${Math.max(0,row(x).total/max*100)}%"></i></div><b>${money(row(x).total)}</b></div>`);
+    h+=`<div class="overview-average"><span>Média do período</span><b>${money(avgTotal)}</b></div></div>`;
+    } else if(sub==='economy'){
+    const n=Number(db.mgmtRef||3),tol=Number(db.mgmtTol||5),z=mgmtHealth(m,n,tol);
+    // Semicircular gauge inspired by the reference image supplied by the user:
+    // green -> yellow -> red arc, central needle, clean dial.
+    const rot=Math.max(-90,Math.min(90,z.angle));
+    const deltaLabel=(z.delta>=0?'+':'')+z.delta.toFixed(1)+'%';
+    const stateClass=z.state==='ECONOMIZANDO'?'economy-good':z.state==='PREJUDICADA'?'economy-bad':'economy-stable';
+    h=`<div class="economy-card">
+      <div class="economy-head"><div><h3>🚗 Velocímetro financeiro</h3><p class="muted">Atual × média dos ${n} períodos anteriores.</p></div><div class="economy-status ${stateClass}">${esc(z.state)}</div></div>
+      <div class="gauge-reference">
+        <div class="gauge-arc">
+          <div class="gauge-needle" style="transform:translateX(-50%) rotate(${rot}deg)"></div>
+          <div class="gauge-hub"></div>
+          <div class="gauge-mark m1"></div><div class="gauge-mark m2"></div><div class="gauge-mark m3"></div>
+          <div class="gauge-labels-below">
+            <span>ECONOMIZANDO</span>
+            <span>ESTÁVEL</span>
+            <span>ACIMA</span>
+          </div>
+        </div>
+        <div class="gauge-number">${deltaLabel}<small>vs. média</small></div>
+      </div>
+      <div class="economy-kpis">
+        <div><small>Atual</small><b>${money(z.cur.total)}</b></div>
+        <div><small>Média</small><b>${money(z.avg)}</b></div>
+        <div><small>Variação</small><b>${deltaLabel}</b></div>
+      </div>
+      <div class="grid2 economy-controls">
+        <label>Referência<select id="mgmtRef"><option value="3" ${n===3?'selected':''}>3 meses</option><option value="6" ${n===6?'selected':''}>6 meses</option><option value="9" ${n===9?'selected':''}>9 meses</option><option value="12" ${n===12?'selected':''}>12 meses</option></select></label>
+        <label>Tolerância<select id="mgmtTol"><option value="3" ${tol===3?'selected':''}>3%</option><option value="5" ${tol===5?'selected':''}>5%</option><option value="10" ${tol===10?'selected':''}>10%</option></select></label>
+      </div>
+      <p class="muted economy-foot">${z.available.length} de ${n} períodos históricos disponíveis para calcular a média.</p>
+    </div>`;
+    document.getElementById('mgmt').innerHTML=h;
+    document.getElementById('mgmtRef').onchange=function(){db.mgmtRef=+this.value;save();renderMgmt()};
+    document.getElementById('mgmtTol').onchange=function(){db.mgmtTol=+this.value;save();renderMgmt()};
+    return;
+  } else if(sub==='accounts'){
+    const currentMonth=m;
+    const currentYear=Number(currentMonth.split('-')[0]);
+    const savedYear=Number(db.mgmtAccountsYear||currentYear);
+    const selectedYear=(savedYear>=2000&&savedYear<=2100)?savedYear:currentYear;
+    const years=new Set([currentYear,selectedYear]);
+    Object.keys(db.months||{}).forEach(k=>years.add(Number(k.split('-')[0])));
+    const yearOptions=[...years].filter(y=>y>=2000&&y<=2100).sort((a,b)=>b-a);
+    const anchor=document.getElementById('mgmtAccountsYear')?.value;
+    h='<h3>🏠 Contas — evolução dos períodos</h3>';
+    h+='<div class="accounts-period-filter"><div><label>Ano</label><select id="mgmtAccountsYear" onchange="setMgmtAccountsYear(this.value)">';
+    yearOptions.forEach(y=>h+=`<option value="${y}" ${y===selectedYear?'selected':''}>${y}</option>`);
+    h+='</select></div><div class="muted accounts-period-help">Todos os 12 meses do ano selecionado, inclusive meses sem registros.</div></div>';
+
+    const vals=[];
+    for(let mo=1;mo<=12;mo++) vals.push(`${selectedYear}-${String(mo).padStart(2,'0')}`);
+    const max=Math.max(...vals.map(x=>row(x).fixed),1);
+    h+='<div class="chart-card"><h3>📊 Contas por mês</h3>';
+    vals.forEach(x=>h+=`<div class="bar-row"><span>${monthName(x).split(' ')[0]}</span><div class="bar"><i style="width:${Math.max(0,row(x).fixed/max*100)}%"></i></div><b>${money(row(x).fixed)}</b></div>`);
+    h+='</div>';
+
+    h+='<h3 style="margin-top:20px">📈 Comparação das contas</h3>';
+    h+='<p class="muted">Abra cada cartão para ver os 12 meses e a média da conta. A linha vermelha representa a média.</p>';
+    db.accounts.forEach(a=>{
+      const values=vals.map(x=>+ensure(x).accounts[a]||0);
+      const avg=values.reduce((s,v)=>s+v,0)/12;
+      const maxV=Math.max(...values,avg,1);
+      const cur=+ensure(currentMonth).accounts[a]||0;
+      h+=`<details class="account-compare-card">
+        <summary><span><b>🏠 ${esc(a)}</b><small class="muted">Média anual: ${money(avg)}</small></span><strong>${money(cur)}</strong></summary>
+        <div class="account-chart">
+          <div class="account-chart-area">
+            <div class="account-average-line" style="bottom:${Math.min(100,avg/maxV*100)}%"><span>Média ${money(avg)}</span></div>
+            <div class="account-bars">`;
+      values.forEach((v,i)=>{
+        const pct=v?Math.max(2,v/maxV*100):0;
+        h+=`<div class="account-bar-col"><div class="account-bar-value">${money(v)}</div><div class="account-bar" style="height:${pct}%"></div><small>${monthName(vals[i]).split(' ')[0].slice(0,3)}</small></div>`;
+      });
+      h+='</div></div></div></details>';
+    });
+  } else if(sub==='people'){
+    const peoplePeriod=peopleMgmtPeriod||m;
+    if(!peopleMgmtPeriod) peopleMgmtPeriod=m;
+    h='<h3>👥 Gastos por pessoa</h3>';
+    h+=`<div class="people-period-filter"><div><label>Período atual</label><div class="muted">O padrão é sempre o mês corrente.</div></div><div><label>Consultar outro mês</label><input type="month" value="${peoplePeriod}" onchange="setPeopleMgmtPeriod(this.value)"></div></div>`;
+    h+=`<p class="muted">Período consultado: <b>${monthName(peoplePeriod)}</b>. Toque em uma pessoa para abrir os detalhes.</p>`;
+    h+='<div class="people-cards">';
+    db.people.forEach(p=>{
+      let d=ensure(peoplePeriod);
+      let shop=d.purchases.filter(x=>x.buyer===p&&x.type==='Supermercado').reduce((s,x)=>s+(+x.value||0),0);
+      let fuel=d.purchases.filter(x=>x.buyer===p&&x.type==='Combustível').reduce((s,x)=>s+(+x.value||0),0);
+      let other=d.purchases.filter(x=>x.buyer===p&&x.type==='Outros').reduce((s,x)=>s+(+x.value||0),0);
+      let total=shop+fuel+other;
+      h+=`<details class="person-card"><summary><span><b>👤 ${esc(p)}</b><small class="muted">Total em ${monthName(peoplePeriod)}</small></span><strong>${money(total)}</strong></summary>
+        <div class="person-card-body"><div class="person-detail"><span>🛒 Supermercado</span><b>${money(shop)}</b></div>
+        <div class="person-detail"><span>⛽ Combustível</span><b>${money(fuel)}</b></div>
+        <div class="person-detail"><span>📦 Outros</span><b>${money(other)}</b></div>
+        <div class="person-detail person-total"><span>Total</span><b>${money(total)}</b></div></div></details>`;
+    });
+    h+='</div><div class="card"><h3>📈 Evolução por pessoa</h3>';
+    db.people.forEach(p=>{
+      const periods=mgmtPeriodsBefore(peoplePeriod,Number(db.mgmtRef||3)),available=periods.filter(x=>db.months[x]);
+      const avm=available.reduce((s,x)=>s+ensure(x).purchases.filter(q=>q.buyer===p).reduce((a,q)=>a+(+q.value||0),0),0)/(available.length||1);
+      const cur=ensure(peoplePeriod).purchases.filter(q=>q.buyer===p).reduce((a,q)=>a+(+q.value||0),0);
+      h+=`<div class="row"><span>${esc(p)}<small class="muted"><br>Média: ${money(avm)}</small></span><b>${money(cur)} ${cur<avm*.95?'🟢':cur>avm*1.05?'🔴':'🟡'}</b></div>`;
+    });
+    h+='</div>';
+  } else if(sub==='history'){
+    h='<h3>📋 Histórico</h3><p class="muted">Consulta somente. Os registros aqui não podem ser editados ou excluídos.</p>';
+    h+=`<div class="history-expander-list">
+      <details class="history-main-card" id="historyPurchasesCard">
+        <summary><span>🛒 <b>Histórico de compras</b><small>Consultar compras por mês, ano ou intervalo</small></span><span class="history-chevron">⌄</span></summary>
+        <div class="history-card-content" id="historyPurchasesContent"></div>
+      </details>
+      <details class="history-main-card" id="historyFixedCard">
+        <summary><span>🏠 <b>Histórico de contas</b><small>Consultar contas por mês, ano ou intervalo</small></span><span class="history-chevron">⌄</span></summary>
+        <div class="history-card-content" id="historyFixedContent"></div>
+      </details>
+    </div>`;
+    document.getElementById('mgmt').innerHTML=h;
+    renderHistoryPurchasePanel();
+    renderHistoryFixedPanel5();
+    return;
+  document.getElementById('mgmt').innerHTML=h;initFixedHistory();return;
+  }
+  document.getElementById('mgmt').innerHTML=h;
+}
+
+function renderHistoryPurchasePanel(){
+ const host=document.getElementById('historyPurchasesContent');if(!host)return;
+ host.innerHTML=`<div class="grid2"><div><label>Período</label><select id="histMode" onchange="initHistoryFilters()"><option value="month">Mês</option><option value="year">Ano</option><option value="range">Intervalo de meses</option></select></div><div><label>Tipo</label><select id="histType" onchange="renderPurchaseHistory()"><option value="">Todos</option><option>Supermercado</option><option>Combustível</option><option>Outros</option></select></div></div><div id="histPeriodBox"></div><label>Pessoa</label><select id="histPerson" onchange="renderPurchaseHistory()"><option value="">Todos</option>${db.people.map(p=>`<option>${esc(p)}</option>`).join('')}</select><div id="historyResults"></div>`;
+ initHistoryFilters();
+}
+function renderHistoryFixedPanel5(){
+ const host=document.getElementById('historyFixedContent');if(!host)return;
+ host.innerHTML=`<div class="grid2"><div><label>Período</label><select id="fh5Mode" onchange="initFixedHistory5()"><option value="month">Mês</option><option value="year">Ano</option><option value="range">Intervalo</option></select></div><div><label>Conta</label><select id="fh5Account" onchange="renderFixedHistory5()"><option value="">Todas</option>${db.accounts.map(a=>`<option>${esc(a)}</option>`).join('')}</select></div></div><div id="fh5PeriodBox"></div><label>Família</label><select id="fh5Family" onchange="renderFixedHistory5()"><option value="">Todas</option>${db.families.map((f,i)=>`<option value="${i}">${esc(f.name)}</option>`).join('')}</select><div id="fixedHistory5Results"></div>`;
+ initFixedHistory5();
+}
+function initFixedHistory5(){
+ const mode=document.getElementById('fh5Mode').value;let h='';
+ if(mode==='month')h='<label>Mês</label><input id="fh5Month" type="month" onchange="renderFixedHistory5()">';
+ else if(mode==='year')h='<label>Ano</label><input id="fh5Year" type="number" min="2020" max="2100" onchange="renderFixedHistory5()">';
+ else h='<div class="grid2"><div><label>De</label><input id="fh5From" type="month" onchange="renderFixedHistory5()"></div><div><label>Até</label><input id="fh5To" type="month" onchange="renderFixedHistory5()"></div></div>';
+ document.getElementById('fh5PeriodBox').innerHTML=h;
+ if(mode==='month')document.getElementById('fh5Month').value=current();
+ if(mode==='year')document.getElementById('fh5Year').value=Number(current().slice(0,4));
+ if(mode==='range'){document.getElementById('fh5From').value=last6(current())[0];document.getElementById('fh5To').value=current();}
+ renderFixedHistory5();
+}
+function fixedHistoryMonths5(){
+ const mode=document.getElementById('fh5Mode').value;
+ if(mode==='month')return [document.getElementById('fh5Month').value||current()];
+ if(mode==='year'){const y=document.getElementById('fh5Year').value||current().slice(0,4);return Object.keys(db.months).filter(x=>x.startsWith(y)).sort()}
+ const a=document.getElementById('fh5From').value||current(),b=document.getElementById('fh5To').value||current();
+ return Object.keys(db.months).filter(x=>x>=a&&x<=b).sort();
+}
+function renderFixedHistory5(){
+ const months=fixedHistoryMonths5(),account=document.getElementById('fh5Account').value;
+ let rows=[],grand=0;
+ months.forEach(mm=>{
+   let d=ensure(mm);
+   db.accounts.filter(a=>!account||a===account).forEach(a=>{
+     let v=+d.accounts[a]||0;
+     if(v||account){grand+=v;rows.push({m:mm,a,v})}
+   });
+ });
+ let h=`<div class="row"><span>Períodos</span><b>${months.length}</b></div><div class="row total"><b>Total das contas</b><b>${money(grand)}</b></div>`;
+ if(rows.length){
+   h+='<div class="fixed-history-records">';
+   rows.forEach(r=>{
+     h+=`<details class="fixed-history-record-card">
+       <summary>
+         <span class="fixed-history-title"><b>🏠 ${esc(r.a)}</b><small>${monthName(r.m)}</small></span>
+         <strong>${money(r.v)}</strong>
+       </summary>
+       <div class="fixed-history-record-body">
+         <div class="fixed-history-detail"><span>📅 Período</span><b>${monthName(r.m)}</b></div>
+         <div class="fixed-history-detail"><span>🏠 Conta</span><b>${esc(r.a)}</b></div>
+         <div class="fixed-history-detail"><span>💰 Valor</span><b>${money(r.v)}</b></div>
+       </div>
+     </details>`;
+   });
+   h+='</div>';
+ }else h+='<div class="empty">Nenhum registro encontrado.</div>';
+ h+=`<div class="actions"><button class="btn" onclick="printFixedHistory5()">📄 PDF</button><button class="btn secondary" onclick="shareFixedHistory5()">📤 Compartilhar</button></div>`;
+ document.getElementById('fixedHistory5Results').innerHTML=h;
+}
+function fixedHistoryText5(){
+ const months=fixedHistoryMonths5(),account=document.getElementById('fh5Account').value,fam=document.getElementById('fh5Family').value;
+ let total=0;months.forEach(mm=>{let d=ensure(mm);db.accounts.filter(a=>!account||a===account).forEach(a=>total+=+d.accounts[a]||0)});
+ let label=document.getElementById('fh5Mode').value==='month'?monthName(months[0]):document.getElementById('fh5Mode').value==='year'?'Ano '+months[0]?.slice(0,4):`${monthName(months[0])} → ${monthName(months[months.length-1])}`;
+ return `🏠 HISTÓRICO DE CONTAS\n${label}\nConta: ${account||'Todas'}\nFamília: ${fam===''?'Todas':db.families[Number(fam)].name}\n\nTotal: ${money(total)}\nPeríodos: ${months.length}`;
+}
+async function shareFixedHistory5(){const txt=fixedHistoryText5();try{if(navigator.share)await navigator.share({title:'Histórico de Contas',text:txt});else{await navigator.clipboard.writeText(txt);alert('Resumo copiado.')}}catch(e){}}
+function printFixedHistory5(){window.print()}
+function initHistoryFilters(){
+ const mode=document.getElementById('histMode').value,m=current();
+ let h='';
+ if(mode==='month'){
+   h='<label>Mês</label><input id="histMonth" type="month" onchange="renderPurchaseHistory()">';
+ }else if(mode==='year'){
+   h='<label>Ano</label><input id="histYear" type="number" min="2020" max="2100" onchange="renderPurchaseHistory()">';
+ }else{
+   h='<div class="grid2"><div><label>De</label><input id="histFrom" type="month" onchange="renderPurchaseHistory()"></div><div><label>Até</label><input id="histTo" type="month" onchange="renderPurchaseHistory()"></div></div>';
+ }
+ document.getElementById('histPeriodBox').innerHTML=h;
+ if(mode==='month')document.getElementById('histMonth').value=m;
+ if(mode==='year')document.getElementById('histYear').value=Number(m.slice(0,4));
+ if(mode==='range'){
+   const keys=Object.keys(db.months).sort(), first=keys.length?keys[0]:m;
+   document.getElementById('histFrom').value=first;
+   document.getElementById('histTo').value=m;
+ }
+ renderPurchaseHistory();
+}
+function purchaseHistoryMonths(){
+ const mode=document.getElementById('histMode').value;
+ if(mode==='month')return [document.getElementById('histMonth')?.value||current()];
+ if(mode==='year'){
+   const y=String(document.getElementById('histYear')?.value||new Date().getFullYear());
+   return Object.keys(db.months).filter(x=>x.startsWith(y)).sort();
+ }
+ const a=document.getElementById('histFrom')?.value||current(),b=document.getElementById('histTo')?.value||current();
+ return Object.keys(db.months).filter(x=>x>=a&&x<=b).sort();
+}
+function renderPurchaseHistory(){
+ const type=document.getElementById('histType').value,person=document.getElementById('histPerson').value,months=purchaseHistoryMonths(),mode=document.getElementById('histMode').value;
+ let arr=[];
+ months.forEach(m=>{const d=db.months[m];if(d&&Array.isArray(d.purchases))d.purchases.forEach(x=>arr.push({...x,__month:m}))});
+ arr=arr.filter(x=>(!type||x.type===type)&&(!person||x.buyer===person)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ const total=arr.reduce((s,x)=>s+Number(x.value||0),0),shop=arr.filter(x=>x.type==='Supermercado').reduce((s,x)=>s+Number(x.value||0),0),fuel=arr.filter(x=>x.type==='Combustível').reduce((s,x)=>s+Number(x.value||0),0),other=arr.filter(x=>x.type==='Outros').reduce((s,x)=>s+Number(x.value||0),0);
+ const label=mode==='month'?(months[0]?monthName(months[0]):'—'):mode==='year'?'Ano '+(document.getElementById('histYear')?.value||''):(months.length?monthName(months[0])+' → '+monthName(months[months.length-1]):'—');
+ let h=`<div class="row"><span>Período pesquisado</span><b>${esc(label)}</b></div><div class="row"><span>Meses encontrados</span><b>${months.length}</b></div><div class="row"><span>Registros</span><b>${arr.length}</b></div><div class="row"><span>🛒 Supermercado</span><b>${money(shop)}</b></div><div class="row"><span>⛽ Combustível</span><b>${money(fuel)}</b></div><div class="row"><span>📦 Outros</span><b>${money(other)}</b></div><div class="row total"><b>Total</b><b>${money(total)}</b></div>`;
+ h+=`<div class="actions"><button class="btn" onclick="printPurchaseHistory()">📄 PDF</button><button class="btn secondary" onclick="sharePurchaseHistory()">📤 Compartilhar</button></div>`;
+ if(arr.length){
+   h+='<div class="purchase-history-cards">';
+   if(mode==='year'){
+     months.forEach(mm=>{
+       const monthItems=arr.filter(x=>x.__month===mm);
+       if(!monthItems.length)return;
+       const mt=monthItems.reduce((s,x)=>s+Number(x.value||0),0);
+       h+=`<details class="purchase-history-month-card" open><summary><b>${esc(monthName(mm))}</b><strong>${money(mt)}</strong></summary><div class="purchase-month-items">`;
+       monthItems.forEach(x=>{h+=purchaseHistoryCardHtml(x)});
+       h+='</div></details>';
+     });
+   }else{
+     arr.forEach((x,i)=>{h+=purchaseHistoryCardHtml(x,i===0)});
+   }
+   h+='</div>';
+ }else h+='<div class="empty">Nenhum registro encontrado neste período.</div>';
+ document.getElementById('historyResults').innerHTML=h;
+}
+function purchaseHistoryCardHtml(x,open=false){
+ return `<details class="purchase-history-card"${open?' open':''}><summary><span><b>${esc(x.type)}${x.type==='Outros'&&x.otherDetail?` · ${esc(x.otherDetail)}`:''}</b><small>${new Date(x.date+'T12:00:00').toLocaleDateString('pt-BR')} · ${esc(x.buyer)}</small></span><strong>${money(x.value)}</strong></summary><div class="purchase-history-details"><div><span>Período</span><b>${monthName(x.__month)}</b></div><div><span>Data</span><b>${new Date(x.date+'T12:00:00').toLocaleDateString('pt-BR')}</b></div><div><span>Tipo</span><b>${esc(x.type)}</b></div>${x.type==='Outros'&&x.otherDetail?`<div><span>O que foi?</span><b>${esc(x.otherDetail)}</b></div>`:''}<div><span>Quem</span><b>${esc(x.buyer)}</b></div><div><span>Local</span><b>${esc(x.store||'—')}</b></div><div><span>Valor</span><b>${money(x.value)}</b></div>${x.note?`<div><span>Observação</span><b>${esc(x.note)}</b></div>`:''}</div></details>`;
+}
+function historyShareText(){
+ const type=document.getElementById('histType').value,person=document.getElementById('histPerson').value,months=purchaseHistoryMonths();
+ let arr=[];months.forEach(m=>{const d=db.months[m];if(d&&Array.isArray(d.purchases))d.purchases.forEach(x=>arr.push(x))});
+ arr=arr.filter(x=>(!type||x.type===type)&&(!person||x.buyer===person));
+ const shop=arr.filter(x=>x.type==='Supermercado').reduce((s,x)=>s+Number(x.value||0),0),fuel=arr.filter(x=>x.type==='Combustível').reduce((s,x)=>s+Number(x.value||0),0),other=arr.filter(x=>x.type==='Outros').reduce((s,x)=>s+Number(x.value||0),0),total=shop+fuel+other;
+ return `📋 HISTÓRICO DE COMPRAS
+Período: ${months.length?monthName(months[0])+(months.length>1?' → '+monthName(months[months.length-1]):''):'—'}
+Tipo: ${type||'Todos'}
+Pessoa: ${person||'Todos'}
+
+🛒 Supermercado: ${money(shop)}
+⛽ Combustível: ${money(fuel)}
+📦 Outros: ${money(other)}
+💰 Total: ${money(total)}
+Registros: ${arr.length}`;
+}
+async function sharePurchaseHistory(){
+ const text=historyShareText();
+ try{if(navigator.share)await navigator.share({title:'Histórico de Compras',text});else{await navigator.clipboard.writeText(text);alert('Resumo copiado. Agora você pode compartilhar.')}}catch(e){}
+}
+function printPurchaseHistory(){window.print()}function fixedHistoryMonths(){
+ const mode=document.getElementById('fhMode').value;
+ if(mode==='month')return [document.getElementById('fhMonth').value||current()];
+ if(mode==='year'){let y=document.getElementById('fhYear').value||current().slice(0,4);return Object.keys(db.months).filter(x=>x.startsWith(y)).sort()}
+ let a=document.getElementById('fhFrom').value||current(),b=document.getElementById('fhTo').value||current();
+ return Object.keys(db.months).filter(x=>x>=a&&x<=b).sort();
+}function fixedHistoryText(){
+ const months=fixedHistoryMonths(),account=document.getElementById('fhAccount').value,fam=document.getElementById('fhFamily').value;
+ let total=0;months.forEach(m=>{let d=ensure(m);db.accounts.filter(a=>!account||a===account).forEach(a=>total+=+d.accounts[a]||0)});
+ let label=document.getElementById('fhMode').value==='month'?monthName(months[0]):document.getElementById('fhMode').value==='year'?'Ano '+months[0]?.slice(0,4):`${monthName(months[0])} → ${monthName(months[months.length-1])}`;
+ let txt=`🏠 HISTÓRICO DE CONTAS\n${label}\nConta: ${account||'Todas'}\nFamília: ${fam===''?'Todas':db.families[Number(fam)].name}\n\nTotal: ${money(total)}\nPeríodos: ${months.length}`;
+ if(fam!=='')txt+=`\nValor da família no período: ${money(months.reduce((s,m)=>{let d=ensure(m);return s+db.accounts.filter(a=>!account||a===account).reduce((z,a)=>z+(+d.accounts[a]||0)*(+db.families[Number(fam)].pct||0)/100,0)},0))}`;
+ return txt;
+}
+async function shareFixedHistory(){let txt=fixedHistoryText();try{if(navigator.share)await navigator.share({title:'Histórico de Contas',text:txt});else{await navigator.clipboard.writeText(txt);alert('Resumo copiado.')}}catch(e){}}
+function printFixedHistory(){window.print()}
+
+function fixedUnlockMonthList(){
+ const set=new Set(Object.keys(db.months||{}));
+ const base=new Date(); base.setDate(1);
+ for(let i=-3;i<13;i++){let d=new Date(base);d.setMonth(d.getMonth()+i);set.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))}
+ return [...set].sort();
+}
+function renderFixedUnlockMonths(){
+ const box=document.getElementById('fixedUnlockMonths'); if(!box)return;
+ const list=fixedUnlockMonthList();
+ box.innerHTML=list.map(m=>`<label class="btn choice ${db.fixedUnlockedMonths.includes(m)?'selected':''}" style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="fixed-unlock-check" value="${m}" ${db.fixedUnlockedMonths.includes(m)?'checked':''} style="width:auto"> ${monthName(m)}</label>`).join('');
+}
+function unlockFixedSelectedMonths(){
+ const pass=prompt('Digite a senha do administrador para desbloquear os meses selecionados:');
+ if(pass===null)return;
+ if(pass!==db.password)return alert('Senha incorreta. Nenhum mês foi desbloqueado.');
+ const selected=[...document.querySelectorAll('.fixed-unlock-check:checked')].map(x=>x.value);
+ db.fixedUnlockedMonths=selected;
+ save();renderConfig();renderFixed();renderMgmt();
+ alert(selected.length?('🔓 '+selected.length+' mês(es) desbloqueado(s).'): 'Nenhum mês foi desbloqueado.');
+}
+function renderConfig(){document.getElementById('fixedValueLock').checked=db.fixedValueLock!==false;renderFixedUnlockMonths();document.getElementById('cDay').value=db.closeDay;document.getElementById('cAuto').checked=db.auto;document.getElementById('cDetailed').checked=db.detailed;document.getElementById('cDelete').checked=!!db.deleteEnabled;document.getElementById('fixedLockEnabled').checked=db.fixedSecurityLock!==false;document.getElementById('cFamilies').innerHTML=db.families.map((f,i)=>`<div class="card"><div class="grid2"><div><label>Família ${i+1}</label><input id="fn${i}" value="${esc(f.name)}"></div><div><label>Percentual</label><input id="fp${i}" type="number" value="${f.pct}"></div></div><label>WhatsApp (DDI + número)</label><input id="fh${i}" inputmode="numeric" value="${esc(f.phone||'')}"></div>`).join('');document.getElementById('cPeople').innerHTML=db.people.map((p,i)=>`<div class="row"><input id="pn${i}" value="${esc(p)}"><button class="btn danger" onclick="removePerson(${i})">Excluir</button></div>`).join('')}
+function saveConfig(){const newValueLock=document.getElementById('fixedValueLock').checked;if(newValueLock!==db.fixedValueLock){const adminPass=prompt('Digite a senha do administrador para alterar o bloqueio dos valores:');if(adminPass!==db.password)return alert('Senha incorreta. O bloqueio dos valores não foi alterado.');db.fixedValueLock=newValueLock;}db.closeDay=Math.min(28,Math.max(1,+document.getElementById('cDay').value||26));db.auto=document.getElementById('cAuto').checked;db.detailed=document.getElementById('cDetailed').checked;db.deleteEnabled=document.getElementById('cDelete').checked;const newFixedLock=document.getElementById('fixedLockEnabled').checked;if(newFixedLock!==db.fixedSecurityLock){const adminPass=prompt('Digite a senha do administrador para alterar a trava:');if(adminPass!==db.password)return alert('Senha incorreta. A trava não foi alterada.');db.fixedSecurityLock=newFixedLock;}db.families=db.families.map((f,i)=>({...f,name:document.getElementById('fn'+i).value.trim()||f.name,pct:+document.getElementById('fp'+i).value||0,phone:document.getElementById('fh'+i).value.replace(/\D/g,'')}));if(Math.round(db.families.reduce((s,f)=>s+f.pct,0))!==100)return alert('Os percentuais precisam totalizar 100%.');db.people=db.people.map((p,i)=>document.getElementById('pn'+i).value.trim()||p);let np=document.getElementById('cPass').value.trim();if(np)db.password=np;document.getElementById('cPass').value='';save();renderConfig();renderBuyers();alert('Configurações salvas.')}
+function addFamily(){
+  db.families=db.families.map((f,i)=>({...f,name:document.getElementById('fn'+i)?.value.trim()||f.name,pct:+(document.getElementById('fp'+i)?.value)||0,phone:(document.getElementById('fh'+i)?.value||'').replace(/\D/g,'')}));
+  db.families.push({name:'Nova família',pct:0,phone:''});
+  save();renderConfig();
+}
+function addPerson(){db.people=db.people.map((p,i)=>document.getElementById('pn'+i)?.value.trim()||p);db.people.push('Nova pessoa');save();renderConfig();renderBuyers()}
+function removePerson(i){if(db.people.length===1)return alert('Mantenha pelo menos uma pessoa.');db.people=db.people.map((p,j)=>document.getElementById('pn'+j)?.value.trim()||p);db.people.splice(i,1);save();renderConfig();renderBuyers()}
+function sendWA(i){let m=current(),d=ensure(m),fixed=Object.values(d.accounts).reduce((s,v)=>s+ +v,0),f=db.families[i],v=fixed*(+f.pct||0)/100,msg=`🏠 CONTAS DA CASA\n${monthName(m)}\n\n${f.name}: ${money(v)}`;if(db.detailed)msg+=`\n\nTotal das fixas: ${money(fixed)}\nParticipação: ${f.pct}%`;if(f.phone)window.open('https://wa.me/'+f.phone+'?text='+encodeURIComponent(msg),'_blank');else{navigator.clipboard?.writeText(msg);alert('Número do WhatsApp não cadastrado. Mensagem copiada.')}}
+async function shareSummary(){
+ const m=document.getElementById('sumPeriod').value||current(),r=row(m),txt=`📊 CONTAS DA CASA
+${monthName(m)}
+${period(m)}
+
+🏠 Fixas: ${money(r.fixed)}
+🛒 Supermercado: ${money(r.shop)}
+⛽ Combustível: ${money(r.fuel)}
+💰 Total: ${money(r.total)}`;
+ try{
+  if(navigator.share){await navigator.share({title:'Resumo - Contas da Casa',text:txt});}
+  else{await navigator.clipboard.writeText(txt);alert('Resumo copiado. Agora você pode colar no WhatsApp ou onde quiser.');}
+ }catch(e){}
+}
+async function exportBackup(){
+ const backup={version:1,exportedAt:new Date().toISOString(),app:'Contas da Casa',data:db};
+ const json=JSON.stringify(backup,null,2);
+ const filename='backup_contas_da_casa_'+new Date().toISOString().slice(0,10)+'.json';
+ try{
+   if(window.File && navigator.share && navigator.canShare){
+     const file=new File([json],filename,{type:'application/json'});
+     if(navigator.canShare({files:[file]})){
+       await navigator.share({title:'Backup Contas da Casa',text:'Backup dos dados do aplicativo',files:[file]});
+       return;
+     }
+   }
+ }catch(e){}
+ try{
+   const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement('a');
+   a.href=url;a.download=filename;a.target='_blank';a.rel='noopener';
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),10000);
+   return;
+ }catch(e){}
+ const enc=encodeURIComponent(json);
+ const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Backup Contas da Casa</title><style>body{font-family:Arial;padding:18px}button{padding:12px;margin:6px 0;border:0;border-radius:8px;background:#1f6f43;color:#fff;font-weight:bold}textarea{width:100%;height:55vh;box-sizing:border-box}
+/* Empilhar todos os cartões e blocos do aplicativo */
+.grid2,.choice-grid,.kpi-grid,.home-grid,.mgmt-grid{grid-template-columns:1fr !important;}
+.home-grid{display:grid !important;}
+</style></head><body><h2>Backup Contas da Casa</h2><p>O APK não liberou o download automático. Use Compartilhar/Copiar para guardar o backup.</p><button onclick="navigator.share?navigator.share({title:'Backup Contas da Casa',text:document.querySelector('textarea').value}):navigator.clipboard.writeText(document.querySelector('textarea').value).then(()=>alert('Backup copiado.'))">Compartilhar / Copiar</button><textarea readonly></textarea><script>document.querySelector('textarea').value=decodeURIComponent(${JSON.stringify(enc)})<\/script></body></html>`;
+ try{
+   const url='data:text/html;charset=utf-8,'+encodeURIComponent(html);
+   window.open(url,'_blank');
+ }catch(e){
+   try{await navigator.clipboard.writeText(json);alert('Backup copiado. Cole e salve como arquivo .json.')}
+   catch(_){alert('Não foi possível exportar o backup neste APK.')}
+ }
+}
+function reportEscape(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function reportMoney(v){return money(Number(v)||0)}
+function reportMonths(){const keys=Object.keys(db.months||{}).sort();return keys.length?keys:[current()]}
+function generateTabReport(section){
+ const months=reportMonths(),rows=[];
+ months.forEach(m=>{
+   const d=ensure(m);
+   const fixed=Object.values(d.accounts||{}).reduce((s,v)=>s+Number(v||0),0);
+   const shop=(d.purchases||[]).filter(p=>p.type==='Supermercado').reduce((s,p)=>s+Number(p.value||0),0);
+   const fuel=(d.purchases||[]).filter(p=>p.type==='Combustível').reduce((s,p)=>s+Number(p.value||0),0);
+   const other=(d.purchases||[]).filter(p=>p.type==='Outros').reduce((s,p)=>s+Number(p.value||0),0);
+   rows.push({m,fixed,shop,fuel,other,total:fixed+shop+fuel+other,purchases:d.purchases||[]});
+ });
+ const title=section==='home'?'Contas da Casa':section==='fixas'?'Contas':section==='compras'?'Compras':section==='resumo'?'Resumo Financeiro':'Gestão à Vista';
+ let body=``;
+
+ if(section==='compras'){
+   body+='<h2>Registros de compras</h2>';
+   rows.forEach(r=>{
+     if(!r.purchases.length)return;
+     body+=`<h3 class="report-month">${reportEscape(monthName(r.m))}</h3>`;
+     r.purchases.forEach(p=>{
+       body+=`<article class="report-purchase-card">
+         
+           <b class="report-value">${reportMoney(p.value)}</b>
+         </div>
+         
+           <div><span>Tipo</span><b>${reportEscape(p.type)}</b></div>
+           ${p.type==='Outros'&&p.otherDetail?`<div><span>O que foi?</span><b>${reportEscape(p.otherDetail)}</b></div>`:''}
+           <div><span>Quem realizou</span><b>${reportEscape(p.buyer)}</b></div>
+           <div><span>Estabelecimento</span><b>${reportEscape(p.store||'—')}</b></div>
+           <div><span>Valor</span><b>${reportMoney(p.value)}</b></div>
+           ${p.note?`<div><span>Observação</span><b>${reportEscape(p.note)}</b></div>`:''}
+         </div>
+       </article>`;
+     });
+     const mt=r.purchases.reduce((sum,p)=>sum+Number(p.value||0),0);
+     body+=``;
+   });
+ } else {
+   body+='<h2>Resumo por mês</h2><table><tr><th>Mês</th><th>Fixas</th><th>Supermercado</th><th>Combustível</th><th>Outros</th><th>Total</th></tr>';
+   rows.forEach(r=>body+=`<tr><td>${reportEscape(monthName(r.m))}</td><td>${reportMoney(r.fixed)}</td><td>${reportMoney(r.shop)}</td><td>${reportMoney(r.fuel)}</td><td>${reportMoney(r.other)}</td><td>${reportMoney(r.total)}</td></tr>`);
+   body+='</table>';
+ }
+
+ let overlay=document.getElementById('pdfReportOverlay');
+ if(!overlay){
+   overlay=document.createElement('div');
+   overlay.id='pdfReportOverlay';
+   document.body.appendChild(overlay);
+ }
+ overlay.innerHTML=``;
+ document.body.classList.add('printing-tab-report');
+
+ const printCleanup=()=>{
+   document.body.classList.remove('printing-tab-report');
+   if(overlay)overlay.innerHTML='';
+   window.removeEventListener('afterprint',printCleanup);
+ };
+ window.addEventListener('afterprint',printCleanup);
+ setTimeout(()=>window.print(),350);
+}
+function closeTabReport(){
+ const overlay=document.getElementById('pdfReportOverlay');
+ document.body.classList.remove('printing-tab-report');
+ if(overlay)overlay.innerHTML='';
+}
+function importBackup(event){
+ const file=event.target.files?.[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const parsed=JSON.parse(reader.result);
+   const incoming=parsed.data||parsed;
+   if(!incoming || !Array.isArray(incoming.families) || !Array.isArray(incoming.people) || !incoming.months){
+    throw new Error('Arquivo inválido');
+   }
+   if(!confirm('Restaurar este backup substituirá os dados atuais do aplicativo. Deseja continuar?')){event.target.value='';return}
+   db={...clone(DEFAULT),...incoming};
+   db.months=incoming.months||{};
+   db.families=incoming.families;
+   db.people=incoming.people;
+   db.accounts=Array.isArray(incoming.accounts)&&incoming.accounts.length?incoming.accounts:clone(DEFAULT.accounts);
+   db.password=incoming.password||db.password||'1234';
+   db.closeDay=Number(incoming.closeDay)||26;
+   db.auto=incoming.auto!==false;
+   db.detailed=!!incoming.detailed;
+   db.deleteEnabled=!!incoming.deleteEnabled;
+   db.fixedSecurityLock=incoming.fixedSecurityLock!==false;
+   db.mgmtRef=Number(incoming.mgmtRef)||3;
+   db.mgmtTol=Number(incoming.mgmtTol)||5;
+   save();refreshAll();
+document.body.classList.add('home-view');
+   alert('Backup restaurado com sucesso.');
+  }catch(e){alert('Não foi possível restaurar este arquivo. Verifique se ele é um backup válido do aplicativo.')}
+  event.target.value='';
+ };
+ reader.readAsText(file);
+}
+removeExactDuplicatePurchases();cleanupAug22_23Duplicates();
+
+(function(){
+ const t=document.getElementById('fixedMgmtToggle'),p=document.getElementById('fixedMgmtPanel'),c=document.getElementById('fixedMgmtChevron');
+ if(t&&p&&!t.dataset.bound){
+   t.dataset.bound='1';
+   t.onclick=function(){
+     const isHidden=p.classList.contains('hidden');
+     p.classList.toggle('hidden',!isHidden);
+     if(c)c.textContent=isHidden?'▲':'▼';
+     if(isHidden)renderFixedManagement();
+   };
+ }
+})();
+
+document.getElementById('fixedMgmtPeriod').value=fmonth(new Date());document.getElementById('fixedMgmtPeriod').onchange=renderFixedManagement;document.getElementById('fixedMgmtStatus').onchange=renderFixedManagement;document.getElementById('fixedMgmtAccount').onchange=renderFixedManagement;
+document.getElementById('fixedPeriod').value=fmonth(new Date());document.getElementById('buyListPeriod').value=fmonth(new Date());document.getElementById('buyListType').value='';document.getElementById('sumPeriod').value=fmonth(new Date());document.getElementById('buyDate').value=new Date().toISOString().slice(0,10);changeSpendMode();refreshAll();
+</script>
+<script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('nav').forEach(n=>n.style.display='none');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));var h=document.getElementById('home');if(h)h.classList.add('active');});
+toggleOtherPurchaseField();
+</script>
+<label class="report-check"> Usar ano inteiro</label></div>
+<div class="actions"></div>
+</div></div></body>
+</html>
