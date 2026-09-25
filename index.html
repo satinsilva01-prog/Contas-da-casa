@@ -347,16 +347,21 @@ body{font-family:var(--font)!important}
 header{background:var(--surface)!important;color:var(--text)!important;border-bottom:1px solid var(--border)!important;box-shadow:none!important;padding:13px 14px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px}
 header h1{color:var(--text)!important;font-size:19px!important;text-align:left!important;margin:0}
 header small#headerPeriod{color:var(--text-muted)!important;text-align:left!important}
-.header-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.header-brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .header-brand .icon{color:var(--accent);width:26px;height:26px}
 .icon-btn{background:var(--bg-soft);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:9px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .icon-btn .icon{width:19px;height:19px;color:var(--text)}
 
-nav{background:var(--surface)!important;border-color:var(--border)!important}
-nav button{background:var(--surface)!important;color:var(--text-muted)!important;border:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;font-size:11px!important;font-weight:700!important}
-nav button .icon{width:21px;height:21px}
+body{padding-bottom:0!important}
+.nav-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:none}
+.nav-backdrop.open{display:block}
+nav,body.home-view nav{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;bottom:0!important;left:0!important;right:auto!important;width:78vw!important;max-width:300px!important;height:100vh!important;height:100dvh!important;background:var(--surface)!important;border:0!important;border-right:1px solid var(--border)!important;box-shadow:var(--shadow-lg)!important;z-index:9999!important;padding:10px 10px calc(10px + env(safe-area-inset-bottom))!important;gap:3px!important;grid-template-columns:none!important;transform:translateX(-105%)!important;transition:transform .25s ease!important;overflow-y:auto}
+nav.open{transform:translateX(0)!important}
+.nav-head{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 12px;font-weight:800;color:var(--text);font-size:15px}
+nav button{background:var(--surface)!important;color:var(--text)!important;border:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;font-size:14px!important;font-weight:700!important;padding:12px 12px!important;border-radius:12px!important;width:100%!important;text-align:left!important}
+nav button .icon{width:20px;height:20px}
 nav button.active{color:var(--accent)!important;background:var(--accent-soft)!important}
-body.dark-theme nav,body.dark-theme nav button,body.dark-theme nav button.active{background:inherit;color:inherit}
+@media(min-width:700px){nav{border-radius:0 18px 18px 0!important}}
 
 main{background:transparent}
 .card,.box{background:var(--surface)!important;border:1px solid var(--border)!important;color:var(--text)!important;box-shadow:var(--shadow)!important;border-radius:var(--radius)!important}
@@ -461,12 +466,16 @@ select option{background:var(--surface);color:var(--text)}
 <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></symbol>
 <symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6V16h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z"/></symbol>
 <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
 </svg>
+<div id="navBackdrop" class="nav-backdrop" onclick="closeNavMenu()"></div>
 <header>
+<button class="icon-btn" id="menuBtn" onclick="openNavMenu()" aria-label="Menu"><svg class="icon"><use href="#i-menu"/></svg></button>
 <div class="header-brand"><svg class="icon"><use href="#i-wallet"/></svg><div><h1>Contas da Casa</h1><small id="headerPeriod"></small></div></div>
 <button class="icon-btn" onclick="openThemeSheet()" aria-label="Aparência"><svg class="icon"><use href="#i-palette"/></svg></button>
 </header>
 <nav>
+<div class="nav-head"><span>Menu</span><button class="icon-btn" onclick="closeNavMenu()" aria-label="Fechar menu"><svg class="icon"><use href="#i-x"/></svg></button></div>
 <button class="active" data-tab="home" onclick="openTab('home')"><svg class="icon"><use href="#i-home"/></svg><span>Início</span></button>
 <button data-tab="fixas" onclick="openTab('fixas')"><svg class="icon"><use href="#i-receipt"/></svg><span>Fixas</span></button>
 <button data-tab="compras" onclick="openTab('compras')"><svg class="icon"><use href="#i-cart"/></svg><span>Compras</span></button>
@@ -665,9 +674,11 @@ function todayBR(){
   return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 function current(){return document.getElementById('fixedPeriod').value||fmonth(new Date())}
-function openTab(id){document.body.classList.toggle('home-view',id==='home');document.querySelectorAll('nav').forEach(n=>n.style.display=id==='home'?'none':'');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));refreshAll()}
+function openTab(id){closeNavMenu();document.body.classList.toggle('home-view',id==='home');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));refreshAll()}
+function openNavMenu(){document.querySelector('nav').classList.add('open');document.getElementById('navBackdrop').classList.add('open')}
+function closeNavMenu(){document.querySelector('nav').classList.remove('open');document.getElementById('navBackdrop').classList.remove('open')}
 function openHistoryFromHome(){openTab('gestao');setMgmt('history')}
-function openConfig(){document.getElementById('pass').value='';document.getElementById('modal').style.display='flex'}
+function openConfig(){closeNavMenu();document.getElementById('pass').value='';document.getElementById('modal').style.display='flex'}
 function closeModal(){document.getElementById('modal').style.display='none'}
 const THEME_MODE_KEY='CONTAS_CASA_THEME_MODE',THEME_ACCENT_KEY='CONTAS_CASA_ACCENT';
 const THEME_ACCENTS=[{id:'green',hex:'#1f8a4c'},{id:'blue',hex:'#2563eb'},{id:'purple',hex:'#7c3aed'},{id:'orange',hex:'#ea7e17'},{id:'rose',hex:'#e1435b'},{id:'teal',hex:'#0ea5a6'}];
@@ -1281,6 +1292,17 @@ async function exportBackup(){
  const backup={version:1,exportedAt:new Date().toISOString(),app:'Contas da Casa',data:db};
  const json=JSON.stringify(backup,null,2);
  const filename='backup_contas_da_casa_'+new Date().toISOString().slice(0,10)+'.json';
+ if(window.showSaveFilePicker){
+   try{
+     const handle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Backup JSON',accept:{'application/json':['.json']}}]});
+     const writable=await handle.createWritable();
+     await writable.write(json);
+     await writable.close();
+     return;
+   }catch(e){
+     if(e && e.name==='AbortError')return;
+   }
+ }
  try{
    if(window.File && navigator.share && navigator.canShare){
      const file=new File([json],filename,{type:'application/json'});
